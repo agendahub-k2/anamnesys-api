@@ -8,11 +8,11 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "USER")
+@Table(name = "CUSTOMER", uniqueConstraints = @UniqueConstraint(columnNames = {"email", "user_id"}))
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserModel {
+public class CustomerModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,26 +22,20 @@ public class UserModel {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "phone", nullable = false, length = 15)
+    @Column(name = "phone", nullable = false, length = 100)
     private String phone;
 
-    @Column(name = "email", nullable = false, length = 50, unique = true)
+    @Column(name = "email", nullable = false, length = 100)
     private String email;
-
-    @Column(name = "password", nullable = false)
-    private String password;
-
-    @Column(name = "category", nullable = false)
-    private String category;
-
-    @Column(name = "status", nullable = false)
-    private String status;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "update_at", nullable = false)
     private LocalDateTime updateAt;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @PrePersist
     protected void onCreate() {

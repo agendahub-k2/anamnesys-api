@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Size;
 public class UserRequest {
 
     @NotBlank(message = "Name cannot be empty or null")
-    @Size(max = 40, min = 5, message = "Name should be between 5 and 40 characters")
+    @Size(max = 40, min = 3, message = "Nome inválido - between 3 and 15 characters")
     private String name;
 
     @NotBlank(message = "Email cannot be empty or null")
@@ -20,15 +20,15 @@ public class UserRequest {
     private String email;
 
     @NotBlank(message = "phone cannot be empty or null")
-    @Size(max = 15, message = "Phone should not be longer than 15 characters")
+    @Size(max = 11, min = 11, message = "Telefone inválido")
     private String phone;
 
     @NotBlank(message = "Password cannot be empty or null")
-    @Size(min = 6, max = 100, message = "Password should be between 6 and 255 characters")
+    @Size(min = 4, max = 15, message = "Senha inválida - between 4 and 15 characters")
     private String password;
 
     @NotBlank(message = "Category cannot be empty or null")
-    @Size(min = 1, max = 50, message = "Password should be between 6 and 255 characters")
+    @Size(min = 4, max = 50, message = "Categoria inválida - between 4 and 15 characters")
     private String category;
 
 }
