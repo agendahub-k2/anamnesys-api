@@ -1,6 +1,7 @@
 package com.anamnesys.controller;
 
 import com.anamnesys.util.JwtUtil;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.auth0.jwt.interfaces.DecodedJWT;
+
 import java.io.IOException;
 
 @Configuration

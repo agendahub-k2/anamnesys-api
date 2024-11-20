@@ -8,11 +8,11 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "CUSTOMER", uniqueConstraints = @UniqueConstraint(columnNames = {"email", "user_id"}))
+@Table(name = "PATIENT", uniqueConstraints = @UniqueConstraint(columnNames = {"email", "user_id"}))
 @Getter
 @Setter
 @NoArgsConstructor
-public class CustomerModel {
+public class PatientModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

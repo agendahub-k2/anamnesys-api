@@ -1,7 +1,6 @@
 package com.anamnesys.exception;
 
 
-
 import com.anamnesys.util.Constants;
 
 import java.text.MessageFormat;
