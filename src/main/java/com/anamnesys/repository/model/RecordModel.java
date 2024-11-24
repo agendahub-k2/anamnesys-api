@@ -24,6 +24,13 @@ public class RecordModel {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "segment_id", nullable = false)
+    private SegmentModel segment;
+
+    @Column(length = 500)
+    private String description;
+
     @OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionModel> questions = new ArrayList<>();
 
@@ -35,6 +42,9 @@ public class RecordModel {
 
     @Column(name = "user_id", nullable = false)
     private Long userId;
+
+    @Transient
+    private Long templateId;
 
     @PrePersist
     protected void onCreate() {
@@ -51,12 +61,8 @@ public class RecordModel {
     }
 
     public void addQuestion(QuestionModel question) {
-        questions.add(question);
         question.setRecord(this);
+        this.questions.add(question);
     }
 
-    public void removeQuestion(QuestionModel question) {
-        questions.remove(question);
-        question.setRecord(null);
-    }
 }

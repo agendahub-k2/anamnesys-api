@@ -7,26 +7,39 @@ import com.anamnesys.controller.dto.RecordResponse;
 import com.anamnesys.repository.model.QuestionModel;
 import com.anamnesys.repository.model.RecordModel;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class RecordMapper {
 
     public static RecordModel toModel(RecordRequest request, Long userId, Long recordId) {
 
-
         RecordModel model = new RecordModel();
         model.setId(recordId);
+        model.setDescription(request.getDescription());
         model.setName(request.getName());
         model.setUserId(userId);
-        List<QuestionModel> questionsModel = request.getQuestions().stream().map(it -> {
-            QuestionModel questionModel = new QuestionModel();
-            questionModel.setId(it.getId());
-            questionModel.setSection(it.getSection());
-            questionModel.setQuestion(it.getQuestion());
-            questionModel.setRecord(model);
-            return questionModel;
+        model.setSegment(SegmentMapper.getSegment(request.getSegment()));
+        model.setTemplateId(request.getTemplateId());
 
-        }).toList();
+        List<QuestionModel> questionsModel =
+                Optional.ofNullable(request.getQuestions())
+                        .orElse(new ArrayList<>())
+                        .stream()
+                        .map(it -> {
+                            QuestionModel questionModel = new QuestionModel();
+                            questionModel.setId(it.getId());
+                            questionModel.setQuestion(it.getQuestion());
+                            questionModel.setSection(it.getSection());
+                            questionModel.setDescriptionSection(it.getDescriptionSection());
+                            questionModel.setIsRequired(it.getIsRequired());
+                            questionModel.setQuestionType(it.getQuestionType());
+                            questionModel.setRecord(model);
+                            return questionModel;
+
+                        }).collect(Collectors.toList());
 
         model.setQuestions(questionsModel);
 
@@ -40,14 +53,21 @@ public class RecordMapper {
         response.setId(model.getId());
         response.setName(model.getName());
         response.setUserId(model.getUserId());
+        response.setDescription(model.getDescription());
+        response.setDescription(model.getDescription());
+        response.setSegment(SegmentMapper.getSegment(model.getSegment()));
 
         List<QuestionResponse> question = model.getQuestions().stream().map(it -> {
             QuestionResponse questionResponse = new QuestionResponse();
-            questionResponse.setSection(it.getSection());
             questionResponse.setId(it.getId());
+            questionResponse.setQuestion(it.getQuestion());
+            questionResponse.setSection(it.getSection());
+            questionResponse.setDescriptionSection(it.getDescriptionSection());
+            questionResponse.setIsRequired(it.getIsRequired());
+            questionResponse.setQuestionType(it.getQuestionType());
             questionResponse.setCreatedAt(it.getCreatedAt().toString());
             questionResponse.setUpdateAt(it.getUpdateAt().toString());
-            questionResponse.setQuestion(it.getQuestion());
+
 
             return questionResponse;
         }).toList();

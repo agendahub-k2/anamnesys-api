@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("{userId}/record")
 public class RecordController {
@@ -49,7 +51,7 @@ public class RecordController {
     @GetMapping
     public ResponseEntity<Page<RecordResponse>> getRecordsByUserId(
             @PathVariable Long userId,
-            @PageableDefault(size = 10) Pageable pageable) {
+            @PageableDefault Pageable pageable) {
 
         logger.info("Received request get all records for userId: {}", userId);
         Page<RecordModel> records = recordService.getRecordsByUserId(userId, pageable);
@@ -71,6 +73,19 @@ public class RecordController {
         return ResponseEntity.ok(RecordMapper.toRecordResponse(record));
     }
 
+    @GetMapping("/")
+    public ResponseEntity<List<RecordResponse>> getRecordByName(
+            @PathVariable Long userId,
+            @RequestParam String name) {
 
+        logger.info("Received request get record by name: {} {}", userId, name);
+        List<RecordModel> records = recordService.getRecordByName(name, userId);
+
+        List<RecordResponse> response = records.stream()
+                .map(RecordMapper::toRecordResponse)
+                .toList();
+        logger.info("Process get record by name: {} {}", userId, name);
+        return ResponseEntity.ok(response);
+    }
 
 }

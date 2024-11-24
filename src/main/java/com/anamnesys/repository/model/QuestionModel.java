@@ -63,6 +63,6 @@ public class QuestionModel {
     }
 
     public enum QuestionType {
-        TEXT, NUMBER, BOOLEAN, SELECT, MULTISELECT
+        TEXT, NUMBER, BOOLEAN, SELECT, MULTISELECT, DATE
     }
 }

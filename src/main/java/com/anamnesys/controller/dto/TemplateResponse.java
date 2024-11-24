@@ -1,21 +1,22 @@
 package com.anamnesys.controller.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+
 @Data
 @NoArgsConstructor
-
-public class RecordResponse {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class TemplateResponse {
 
     private Long id;
     private String name;
-    private String description;
     private SegmentResponse segment;
-    private String createdAt;
-    private String updateAt;
-    private Long userId;
+    private String description;
     private List<QuestionResponse> questions;
+
 }
+

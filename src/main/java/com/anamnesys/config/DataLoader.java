@@ -42,63 +42,73 @@ public class DataLoader {
                 System.out.println("SegmentModel - Dados já estão no banco. Nenhuma inserção realizada.");
             }
 
-            // Verifica se o template já existe, caso contrário, salva
             if (templateRepository.count() == 0) {
                 templateRepository.save(fichaMedicaCompleta);
 
-                // Associa todas as perguntas ao template da ficha médica completa
                 questionRepository.saveAll(List.of(
                         // Dados Pessoais
-                        new QuestionModel(null, "Qual é o seu nome completo?", 1L, "Informações Básicas do Paciente" , true, QuestionModel.QuestionType.TEXT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Qual sua data de nascimento?", 1L, "Informações Básicas do Paciente",true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Gênero?", 1L, "Informações Básicas do Paciente",true, QuestionModel.QuestionType.SELECT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Qual seu estado civil?", 1L, "Informações Básicas do Paciente",true, QuestionModel.QuestionType.SELECT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Qual sua idade?", 1L,"Informações Básicas do Paciente", true, QuestionModel.QuestionType.NUMBER,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Telefone para contato?", 1L,"Informações Básicas do Paciente" ,true, QuestionModel.QuestionType.TEXT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Informe seu e-mail?", 1L, "Informações Básicas do Paciente",true, QuestionModel.QuestionType.TEXT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Informe sua profissão?", 1L, "Informações Básicas do Paciente",false, QuestionModel.QuestionType.TEXT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Qual seu endereço?", 1L, "Informações Básicas do Paciente",false, QuestionModel.QuestionType.TEXT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Qual é o seu nome completo?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Qual sua data de nascimento?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Gênero?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.SELECT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Qual seu estado civil?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.SELECT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Qual sua idade?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.NUMBER, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Telefone para contato?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Informe seu e-mail?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Informe sua profissão?", 1L, "Informações Básicas do Paciente", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Qual seu endereço?", 1L, "Informações Básicas do Paciente", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
 
                         // Queixa Principal
-                        new QuestionModel(null, "Qual é o motivo da sua consulta?", 2L,"Queixa Principal" ,true, QuestionModel.QuestionType.TEXT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Qual é o motivo da sua consulta?", 2L, "Queixa Principal", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Há quanto tempo os sintomas começaram?", 2L, "Queixa Principal", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Sintomas são contínuos ou intermitentes?", 2L, "Queixa Principal", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Descrição detalhada do problema?", 2L, "Queixa Principal", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
 
-                        // Histórico Médico
-                        new QuestionModel(null, "Quais doenças você já teve?", 3L, true, QuestionModel.QuestionType.TEXT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Você já realizou cirurgias? Se sim, quais?", 3L, false, QuestionModel.QuestionType.TEXT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Já teve internações hospitalares? Se sim, quando e por qual motivo?", 3L, false, QuestionModel.QuestionType.TEXT, null,fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Possui algum diagnóstico atual?", 3L, true, QuestionModel.QuestionType.TEXT, null,fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        // História da doença atual
+                        new QuestionModel(null, "Há fatores que agravam ou aliviam os sintomas? Se sim detalhe.", 3L, "História da doença atual", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Já realizou algum tratamento para este problema? Se sim qual?", 3L, "História da doença atual", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
 
-                        // Medicamentos
-                        new QuestionModel(null, "Você toma algum medicamento regularmente? Se sim, quais?", 4L, true, QuestionModel.QuestionType.TEXT, null,fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Está em tratamento com algum especialista? Se sim, qual especialidade?", 4L, false, QuestionModel.QuestionType.TEXT, null,fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        // Histórico médico
+                        new QuestionModel(null, "Tem alguma doença crônica? Se sim, detalhe.", 4L, "Histórico médico", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Você já realizou cirurgias? Se sim, quais?", 4L, "Histórico médico", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Já teve internações hospitalares? Se sim, quais?", 4L, "Histórico médico", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Você possui alguma alergia? Se sim, a quê?", 4L, "Histórico médico", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Você toma algum medicamento regularmente? Se sim, quais?", 4L, "Histórico médico", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Você está com suas vacinas em dia? Se não, quais estão pendentes?", 4L, "Histórico médico", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
 
-                        // Alergias e Sensibilidades
-                        new QuestionModel(null, "Você possui alguma alergia? Se sim, a quê?", 5L, true, QuestionModel.QuestionType.TEXT, null,fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Já teve reações adversas a medicamentos ou alimentos? Se sim, quais?", 5L, false, QuestionModel.QuestionType.TEXT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
 
                         // Histórico Familiar
-                        new QuestionModel(null, "Seus familiares possuem histórico de diabetes?", 6L, false, QuestionModel.QuestionType.BOOLEAN, null,fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Seus familiares possuem histórico de hipertensão?", 6L, false, QuestionModel.QuestionType.BOOLEAN,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Seus familiares possuem histórico de câncer?", 6L, false, QuestionModel.QuestionType.BOOLEAN,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Outros problemas familiares?", 6L, false, QuestionModel.QuestionType.TEXT, null,fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Alguém da sua família tem doencas hereditárias ou crônicas?", 5L, "Histórico Familiar", true, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Seus familiares possuem histórico de hipertensão?", 5L, "Histórico Familiar", true, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Seus familiares possuem histórico de câncer?", 5L, "Histórico Familiar", true, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Seus familiares possuem histórico de doenças cardíacas?", 5L, "Histórico Familiar", true, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Seus familiares possuem histórico de diabetes mellitus?", 5L, "Histórico Familiar", true, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Outros problemas familiares?", 5L, "Histórico Familiar", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+
 
                         // Estilo de Vida
-                        new QuestionModel(null, "Você pratica atividades físicas regularmente?", 7L, true, QuestionModel.QuestionType.BOOLEAN,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Como descreveria sua rotina alimentar?", 7L, false, QuestionModel.QuestionType.TEXT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Consome bebidas alcoólicas?", 7L, false, QuestionModel.QuestionType.BOOLEAN,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Fuma?", 7L, false, QuestionModel.QuestionType.BOOLEAN, null,fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Quantas horas você dorme por noite?", 7L, false, QuestionModel.QuestionType.NUMBER,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Fuma?", 6L, "Estilo de Vida", false, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Consome bebidas alcoólicas?", 6L, "Estilo de Vida", false, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Você pratica atividades físicas regularmente?", 6L, "Estilo de Vida", true, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Como descreveria sua rotina alimentar?", 6L, "Estilo de Vida", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Quantas horas você dorme por noite?", 6L, "Estilo de Vida", false, QuestionModel.QuestionType.NUMBER, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Qual é a sua ocupação? Sua rotina de trabalho impacta sua saúde?", 6L, "Estilo de Vida", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
 
-                        // Avaliação Psicológica
-                        new QuestionModel(null, "Como estão seus níveis de estresse nos últimos meses?", 8L, false, QuestionModel.QuestionType.TEXT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Já foi diagnosticado com algum transtorno psicológico? Se sim, qual?", 8L, false, QuestionModel.QuestionType.TEXT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
 
-                        // Exames Recentes
-                        new QuestionModel(null, "Você realizou exames nos últimos 6 meses? Se sim, quais?", 9L, false, QuestionModel.QuestionType.TEXT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        // Avaliação Física
+                        new QuestionModel(null, "Qual é a sua altura em centímetros?", 7L, "Avaliação Física", false, QuestionModel.QuestionType.NUMBER, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Peso KG:", 7L, "Avaliação Física", false, QuestionModel.QuestionType.NUMBER, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Frequência cardíaca:", 7L, "Avaliação Física", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Pressão arterial - mmHg:", 7L, "Avaliação Física", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Outros achados?", 7L, "Avaliação Física", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+
+                        // Saúde Mental
+                        new QuestionModel(null, "Você apresenta sintomas de ansiedade ou depressão?", 8L, "Saúde Mental", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
 
                         // Informações Complementares
-                        new QuestionModel(null, "Existe algo mais que você gostaria de informar?", 10L, false, QuestionModel.QuestionType.TEXT,null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now())
-                ));
+                        new QuestionModel(null, "Você está com suas vacinas em dia? Se não, quais estão pendentes?", 9L, "Informações Complementares", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Existe algo mais que você gostaria de informar?", 9L, "Informações Complementares", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, LocalDateTime.now(), LocalDateTime.now())));
+
+
             } else {
                 System.out.println("TemplateModel - Dados já estão no banco. Nenhuma inserção realizada.");
             }

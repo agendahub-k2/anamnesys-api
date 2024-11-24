@@ -58,11 +58,17 @@ public class HandlerException {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ErrorResponse> emailOrPasswordException(EmailOrPasswordException ex) {
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), null);
-        logger.warn("{} " +
-                "{} ", HttpStatus.NOT_FOUND, ex.getMessage());
+        logger.warn("{} {} ", HttpStatus.NOT_FOUND, ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ErrorResponse> userNotFoundException(UserNotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), null);
+        logger.warn("{} {} ", HttpStatus.NOT_FOUND, ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
 
     @ExceptionHandler(UnauthorizedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)

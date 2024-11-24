@@ -5,9 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 
 public interface RecordRepository extends JpaRepository<RecordModel, Long> {
-    boolean existsByName(String name);
+    boolean existsByNameAndUserId(String name, Long userId);
 
     Page<RecordModel> findByUserId(Long userId, Pageable pageable);
+    List<RecordModel> findByUserIdAndNameContaining(Long userId, String name);
 }

@@ -4,6 +4,8 @@ import com.anamnesys.exception.PatientNotFoundException;
 import com.anamnesys.repository.PatientRepository;
 import com.anamnesys.repository.model.PatientModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -40,5 +42,13 @@ public class PatientService {
 
     private void validatedUser(PatientModel model) {
         userService.getUser(model.getUserId());
+    }
+
+    public Page<PatientModel> getAllPatientsByUserId(Long userId, Pageable pageable) {
+        return patientRepository.findByUserId(userId, pageable);
+    }
+
+    public Page<PatientModel> getAllPatientsByUserIdAndName(Long userId, String name, Pageable pageable) {
+        return patientRepository.findByUserIdAndNameContainingIgnoreCase(userId, name, pageable);
     }
 }
