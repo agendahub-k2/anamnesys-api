@@ -47,7 +47,7 @@ public class PatientController {
 
         logger.info("Patient updated successfully with ID: {}", patientModel);
 
-        return new ResponseEntity<>(PatientMapper.toUserResponse(patientModel), HttpStatus.CREATED);
+        return new ResponseEntity<>(PatientMapper.toUserResponse(patientModel), HttpStatus.OK);
     }
 
     @GetMapping("/find")
@@ -60,7 +60,7 @@ public class PatientController {
         Page<PatientModel> records = patientService.getAllPatientsByUserIdAndName(userId, name, pageable);
 
         Page<PatientResponse> response = records.map(PatientMapper::toUserResponse);
-        logger.info("Process get all patients for userId and name: {} {}", userId, name);
+        logger.info("Retrieved {} patients for userId: {} and name: {}", response.getTotalElements(), userId, name);
         return ResponseEntity.ok(response);
     }
 
@@ -77,7 +77,16 @@ public class PatientController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{patientId}")
+    public ResponseEntity<PatientResponse> getPatientById(
+            @PathVariable Long userId,
+            @PathVariable Long patientId) {
+
+        logger.info("Received request get patient for patientId: {}", patientId);
+        PatientModel patientModel = patientService.getPatientById(patientId);
+
+        logger.info("Process get patient for patientId: {}", patientId);
+        return ResponseEntity.ok(PatientMapper.toUserResponse(patientModel));
+    }
 
 }
-
-

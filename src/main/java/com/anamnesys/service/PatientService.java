@@ -34,6 +34,18 @@ public class PatientService {
         patientRepository.save(model);
     }
 
+    public Page<PatientModel> getAllPatientsByUserId(Long userId, Pageable pageable) {
+        return patientRepository.findByUserId(userId, pageable);
+    }
+
+    public Page<PatientModel> getAllPatientsByUserIdAndName(Long userId, String name, Pageable pageable) {
+        return patientRepository.findByUserIdAndNameContainingIgnoreCase(userId, name, pageable);
+    }
+
+    public PatientModel getPatientById(Long patientId) {
+        return patientRepository.findById(patientId).orElseThrow(PatientNotFoundException::new);
+    }
+
     private void updateValues(PatientModel patientModelDataBase, PatientModel model) {
         patientModelDataBase.setName(model.getName());
         patientModelDataBase.setEmail(model.getEmail());
@@ -42,13 +54,5 @@ public class PatientService {
 
     private void validatedUser(PatientModel model) {
         userService.getUser(model.getUserId());
-    }
-
-    public Page<PatientModel> getAllPatientsByUserId(Long userId, Pageable pageable) {
-        return patientRepository.findByUserId(userId, pageable);
-    }
-
-    public Page<PatientModel> getAllPatientsByUserIdAndName(Long userId, String name, Pageable pageable) {
-        return patientRepository.findByUserIdAndNameContainingIgnoreCase(userId, name, pageable);
     }
 }
