@@ -30,7 +30,6 @@ public class RecordMapper {
                         .stream()
                         .map(it -> {
                             QuestionModel questionModel = new QuestionModel();
-                            questionModel.setId(it.getId());
                             questionModel.setQuestion(it.getQuestion());
                             questionModel.setSection(it.getSection());
                             questionModel.setDescriptionSection(it.getDescriptionSection());

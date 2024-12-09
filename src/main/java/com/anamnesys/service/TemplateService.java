@@ -1,5 +1,6 @@
 package com.anamnesys.service;
 
+import com.anamnesys.exception.TemplateNotFoundException;
 import com.anamnesys.repository.TemplateRepository;
 import com.anamnesys.repository.model.TemplateModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,6 @@ public class TemplateService {
     }
 
     public TemplateModel getTemplateById(Long templateId) {
-        return repository.findById(templateId).orElseThrow();
+        return repository.findById(templateId).orElseThrow(TemplateNotFoundException::new);
     }
 }

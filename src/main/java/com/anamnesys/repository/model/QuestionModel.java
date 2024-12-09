@@ -42,7 +42,7 @@ public class QuestionModel {
     private RecordModel record;
 
     @ManyToOne
-    @JoinColumn(name = "template_id", nullable = true)
+    @JoinColumn(name = "template_id")
     private TemplateModel template;
 
     @Column(name = "created_at", nullable = false)

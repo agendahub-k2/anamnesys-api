@@ -24,13 +24,8 @@ public class RecordService {
     TemplateService templateService;
 
     public void createRecord(RecordModel model) {
-
         validatedUser(model.getUserId());
         validatedRecord(model);
-        if (isTemplate(model)) {
-            setQuestionsTemplate(model);
-        }
-
         repository.save(model);
     }
 
@@ -95,11 +90,6 @@ public class RecordService {
         } catch (RuntimeException e) {
             throw new RuntimeException("Failed to set questions template", e);
         }
-    }
-
-
-    private boolean isTemplate(RecordModel model) {
-        return model.getTemplateId() != null;
     }
 
     private void validatedUser(Long userId) {

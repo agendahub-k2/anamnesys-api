@@ -21,7 +21,7 @@ public class RecordModel {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 100)
+    @Column(name = "name", unique = true, nullable = false, length = 100)
     private String name;
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -43,7 +43,7 @@ public class RecordModel {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Transient
+    @Column(name = "template_id")
     private Long templateId;
 
     @PrePersist
