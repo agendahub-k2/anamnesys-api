@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -18,5 +20,6 @@ public class QuestionResponse {
     private String descriptionSection;
     private Boolean isRequired;
     private QuestionModel.QuestionType questionType;
+    private List<String> options;
 
 }

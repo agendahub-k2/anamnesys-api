@@ -4,10 +4,15 @@ package com.anamnesys.util;
 import com.anamnesys.controller.dto.QuestionResponse;
 import com.anamnesys.controller.dto.RecordRequest;
 import com.anamnesys.controller.dto.RecordResponse;
+import com.anamnesys.controller.dto.SendRecordRequest;
+import com.anamnesys.domain.SendRecord;
 import com.anamnesys.repository.model.QuestionModel;
 import com.anamnesys.repository.model.RecordModel;
+import com.anamnesys.repository.model.RecordSendModel;
+import jakarta.validation.Valid;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,6 +41,7 @@ public class RecordMapper {
                             questionModel.setIsRequired(it.getIsRequired());
                             questionModel.setQuestionType(it.getQuestionType());
                             questionModel.setRecord(model);
+
                             return questionModel;
 
                         }).collect(Collectors.toList());
@@ -65,14 +71,54 @@ public class RecordMapper {
             questionResponse.setIsRequired(it.getIsRequired());
             questionResponse.setQuestionType(it.getQuestionType());
             questionResponse.setCreatedAt(it.getCreatedAt().toString());
-            questionResponse.setUpdateAt(it.getUpdateAt().toString());
-
-
+            questionResponse.setCreatedAt(it.getCreatedAt().toString());
+            questionResponse.setOptions(new ArrayList<>(Collections.singletonList(it.getOptions())));
             return questionResponse;
         }).toList();
 
         response.setQuestions(question);
 
         return response;
+    }
+
+    public static RecordResponse toRecordNotQuestionsResponse(RecordModel model) {
+        RecordResponse response = new RecordResponse();
+        response.setCreatedAt(model.getCreatedAt().toString());
+        response.setUpdateAt(model.getUpdateAt().toString());
+        response.setId(model.getId());
+        response.setName(model.getName());
+        response.setUserId(model.getUserId());
+        response.setDescription(model.getDescription());
+        response.setDescription(model.getDescription());
+        response.setSegment(SegmentMapper.getSegment(model.getSegment()));
+
+        return response;
+    }
+
+    public static SendRecord toSendRecord(SendRecordRequest sendRecordRequest, Long userId) {
+        SendRecord sendRecord = new SendRecord();
+        sendRecord.setUserId(userId);
+        sendRecord.setClientId(sendRecordRequest.getClientId());
+        sendRecord.setMessage(sendRecordRequest.getMessage());
+        sendRecord.setIsSendMail(sendRecordRequest.getIsSendMail());
+        sendRecord.setIsSendWhatsapp(sendRecordRequest.getIsSendWhatsapp());
+        sendRecord.setRecordId(sendRecordRequest.getRecordId());
+        sendRecord.setDateExpiration(sendRecordRequest.getDateExpiration());
+        sendRecord.setDateExpiration(sendRecordRequest.getDateExpiration());
+
+        return sendRecord;
+    }
+
+    public static RecordSendModel toSendModel(SendRecord sendRecord) {
+        RecordSendModel recordSendModel = new RecordSendModel();
+        recordSendModel.setId(sendRecord.getId().toString());
+        recordSendModel.setClientId(sendRecord.getClientId());
+        recordSendModel.setMessage(sendRecord.getMessage());
+        recordSendModel.setIsSendMail(sendRecord.getIsSendMail());
+        recordSendModel.setIsSendWhatsapp(sendRecord.getIsSendWhatsapp());
+        recordSendModel.setRecordId(sendRecord.getRecordId());
+        recordSendModel.setDateExpiration(sendRecord.getDateExpiration());
+        recordSendModel.setUserId(sendRecord.getUserId());
+        return recordSendModel;
     }
 }

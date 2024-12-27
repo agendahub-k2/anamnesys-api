@@ -1,14 +1,19 @@
 package com.anamnesys.controller;
 
+import com.anamnesys.controller.dto.LinkDTO;
 import com.anamnesys.controller.dto.RecordRequest;
 import com.anamnesys.controller.dto.RecordResponse;
+import com.anamnesys.controller.dto.SendRecordRequest;
+import com.anamnesys.domain.SendRecord;
 import com.anamnesys.repository.model.RecordModel;
 import com.anamnesys.service.RecordService;
 import com.anamnesys.util.RecordMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -24,6 +29,8 @@ public class RecordController {
 
     @Autowired
     private RecordService recordService;
+    @Value("${form.base.url}")
+    private String formBaseUrl;
     private static final Logger logger = LoggerFactory.getLogger(RecordController.class);
 
     @PostMapping("/create")
@@ -56,7 +63,7 @@ public class RecordController {
         logger.info("Received request get all records for userId: {}", userId);
         Page<RecordModel> records = recordService.getRecordsByUserId(userId, pageable);
 
-        Page<RecordResponse> response = records.map(RecordMapper::toRecordResponse);
+        Page<RecordResponse> response = records.map(RecordMapper::toRecordNotQuestionsResponse);
         logger.info("Process get all records for userId: {} ", userId);
         return ResponseEntity.ok(response);
     }
@@ -73,7 +80,7 @@ public class RecordController {
         return ResponseEntity.ok(RecordMapper.toRecordResponse(record));
     }
 
-    @GetMapping("/")
+    @GetMapping("find")
     public ResponseEntity<List<RecordResponse>> getRecordByName(
             @PathVariable Long userId,
             @RequestParam String name) {
@@ -82,10 +89,37 @@ public class RecordController {
         List<RecordModel> records = recordService.getRecordByName(name, userId);
 
         List<RecordResponse> response = records.stream()
-                .map(RecordMapper::toRecordResponse)
+                .map(RecordMapper::toRecordNotQuestionsResponse)
                 .toList();
         logger.info("Process get record by name: {} {}", userId, name);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/send")
+    public ResponseEntity<LinkDTO> updateRecord(@PathVariable Long userId, @Valid @RequestBody SendRecordRequest sendRecordRequest) throws JsonProcessingException {
+
+        logger.info("Received request send record: {} {}", userId, sendRecordRequest);
+        SendRecord sendRecord = RecordMapper.toSendRecord(sendRecordRequest, userId);
+        recordService.sendRecord(sendRecord);
+        logger.info("Record send successfully with ID: {} ", sendRecord.getId());
+        String linkId = userId + "/record/" + sendRecord.getId();
+        String formUrl = formBaseUrl + linkId;
+        return ResponseEntity.ok(new LinkDTO(formUrl));
+    }
+
+    @GetMapping("/form-data/{linkId}")
+    public ResponseEntity<RecordResponse> getFormData(@PathVariable Long userId, @PathVariable String linkId) {
+        logger.info("Received get Form Data: {}", linkId);
+        RecordModel formData = recordService.getFormData(linkId);
+
+        return ResponseEntity.ok(RecordMapper.toRecordResponse(formData));
+    }
+
+    @PostMapping("/submit-form/{linkId}")
+    public String submitForm(@PathVariable String linkId, @RequestBody String formResponses) {
+
+        System.out.println("Respostas recebidas para o link " + linkId + ": " + formResponses);
+        return "Formulário enviado com sucesso!";
     }
 
 }

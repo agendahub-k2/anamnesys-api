@@ -5,8 +5,7 @@ import com.anamnesys.controller.dto.TemplateResponse;
 import com.anamnesys.controller.dto.TemplatesBySegmentResponse;
 import com.anamnesys.repository.model.TemplateModel;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.anamnesys.util.SegmentMapper.getSegment;
@@ -61,6 +60,11 @@ public class TemplateMapper {
             questionResponse.setQuestionType(it.getQuestionType());
             questionResponse.setCreatedAt(it.getCreatedAt().toString());
             questionResponse.setUpdateAt(it.getUpdateAt().toString());
+            String options = it.getOptions();
+            List<String> optionsList = (options != null && !options.isEmpty())
+                    ? new ArrayList<>(Arrays.asList(options.split(";")))
+                    : new ArrayList<>();
+            questionResponse.setOptions(optionsList);
             return questionResponse;
         }).toList();
     }

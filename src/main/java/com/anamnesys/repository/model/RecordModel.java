@@ -1,5 +1,6 @@
 package com.anamnesys.repository.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ public class RecordModel {
     private String description;
 
     @OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JsonBackReference
     private List<QuestionModel> questions = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false)

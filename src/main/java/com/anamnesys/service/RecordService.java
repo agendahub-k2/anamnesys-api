@@ -1,10 +1,14 @@
 package com.anamnesys.service;
 
+import com.anamnesys.domain.SendRecord;
 import com.anamnesys.exception.RecordNotFoundException;
 import com.anamnesys.repository.RecordRepository;
+import com.anamnesys.repository.RecordSendRepository;
 import com.anamnesys.repository.model.QuestionModel;
 import com.anamnesys.repository.model.RecordModel;
+import com.anamnesys.repository.model.RecordSendModel;
 import com.anamnesys.repository.model.TemplateModel;
+import com.anamnesys.util.RecordMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +23,8 @@ public class RecordService {
     @Autowired
     RecordRepository repository;
     @Autowired
+    RecordSendRepository recordSendRepository;
+    @Autowired
     UserService userService;
     @Autowired
     TemplateService templateService;
@@ -26,6 +32,7 @@ public class RecordService {
     public void createRecord(RecordModel model) {
         validatedUser(model.getUserId());
         validatedRecord(model);
+        setOptions(model);
         repository.save(model);
     }
 
@@ -54,6 +61,30 @@ public class RecordService {
         return repository.findByUserIdAndNameContaining(userId, name);
     }
 
+
+    public RecordModel getFormData(String linkId) {
+        try {
+            RecordSendModel recordSendModel = recordSendRepository.getReferenceById(linkId);
+            return this.getRecordById(recordSendModel.getRecordId(), recordSendModel.getUserId());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void sendRecord(SendRecord sendRecord) {
+
+        try {
+            validateSendRecord(sendRecord);
+            RecordSendModel sendModel = RecordMapper.toSendModel(sendRecord);
+            recordSendRepository.save(sendModel);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void validateSendRecord(SendRecord sendRecord) {
+    }
+
     private void setValues(RecordModel model, RecordModel modelDataBase) {
         modelDataBase.setName(model.getName());
 
@@ -70,6 +101,24 @@ public class RecordService {
         if (repository.existsByNameAndUserId(model.getName(), model.getUserId())) {
             throw new IllegalArgumentException("Já existe um registro com o nome fornecido.");
         }
+    }
+
+    private void setOptions(RecordModel model) {
+        model.getQuestions().forEach(questionModel -> {
+            switch (questionModel.getQuestionType()) {
+                case SELECT:
+                    questionModel.setOptions(String.join(";", questionModel.getOptions()));
+                    break;
+                case BOOLEAN:
+
+                    if (questionModel.getOptions().isEmpty()) {
+                        questionModel.setOptions("SIM;NÃO");
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
     }
 
     private void setQuestionsTemplate(RecordModel model) {
@@ -95,4 +144,5 @@ public class RecordService {
     private void validatedUser(Long userId) {
         userService.getUser(userId);
     }
+
 }

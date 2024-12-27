@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 public class QuestionRequest {
@@ -26,5 +28,7 @@ public class QuestionRequest {
 
     @NotNull(message = "O tipo da pergunta não pode ser nulo.")
     private QuestionModel.QuestionType questionType;
+
+    private List<String> options;
 }
 
