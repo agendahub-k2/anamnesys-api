@@ -41,7 +41,7 @@ public class RecordMapper {
                             questionModel.setIsRequired(it.getIsRequired());
                             questionModel.setQuestionType(it.getQuestionType());
                             questionModel.setRecord(model);
-
+                            questionModel.setOptions(String.join(";", it.getOptions()));
                             return questionModel;
 
                         }).collect(Collectors.toList());

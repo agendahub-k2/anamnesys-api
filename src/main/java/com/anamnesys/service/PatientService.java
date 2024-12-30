@@ -31,7 +31,7 @@ public class PatientService {
 
         updateValues(patientModelDataBase, model);
 
-        patientRepository.save(model);
+        patientRepository.save(patientModelDataBase);
     }
 
     public Page<PatientModel> getAllPatientsByUserId(Long userId, Pageable pageable) {

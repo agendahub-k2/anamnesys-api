@@ -110,8 +110,7 @@ public class RecordService {
                     questionModel.setOptions(String.join(";", questionModel.getOptions()));
                     break;
                 case BOOLEAN:
-
-                    if (questionModel.getOptions().isEmpty()) {
+                    if (questionModel.getOptions() == null || questionModel.getOptions().isEmpty()) {
                         questionModel.setOptions("SIM;NÃO");
                     }
                     break;
@@ -119,26 +118,6 @@ public class RecordService {
                     break;
             }
         });
-    }
-
-    private void setQuestionsTemplate(RecordModel model) {
-        try {
-            TemplateModel template = templateService.getTemplateById(model.getTemplateId());
-            List<QuestionModel> questionsFromTemplate = template.getQuestions();
-
-            questionsFromTemplate.forEach(question -> {
-                QuestionModel questionModel = new QuestionModel();
-                questionModel.setQuestion(question.getQuestion());
-                questionModel.setSection(question.getSection());
-                questionModel.setDescriptionSection(question.getDescriptionSection());
-                questionModel.setIsRequired(question.getIsRequired());
-                questionModel.setQuestionType(question.getQuestionType());
-                questionModel.setRecord(model);
-                model.addQuestion(questionModel);
-            });
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Failed to set questions template", e);
-        }
     }
 
     private void validatedUser(Long userId) {

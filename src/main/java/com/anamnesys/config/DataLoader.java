@@ -48,7 +48,7 @@ public class DataLoader {
                 questionRepository.saveAll(List.of(
                         // Dados Pessoais
                         new QuestionModel(null, "Qual é o seu nome completo?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Qual sua data de nascimento?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Qual sua data de nascimento?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.DATE, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
                         new QuestionModel(null, "Qual seu gênero?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.SELECT, null, fichaMedicaCompleta, "Masculino;Feminino;Transgênero;Não-binário;Prefiro não informar", LocalDateTime.now(), LocalDateTime.now()),
                         new QuestionModel(null, "Qual seu estado civil?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.SELECT, null, fichaMedicaCompleta, "Solteiro(a);Casado(a);Divorciado(a);Viúvo(a);Separado(a);Prefiro não informar", LocalDateTime.now(), LocalDateTime.now()),
                         new QuestionModel(null, "Qual sua idade?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.NUMBER, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),

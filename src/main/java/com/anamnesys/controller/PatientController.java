@@ -37,7 +37,7 @@ public class PatientController {
         return new ResponseEntity<>(PatientMapper.toUserResponse(patientModel), HttpStatus.CREATED);
     }
 
-    @PostMapping("/update/{patientId}")
+    @PutMapping("/update/{patientId}")
     public ResponseEntity<PatientResponse> updatePatient(@PathVariable Long userId, @PathVariable Long patientId, @Valid @RequestBody PatientRequest patientRequest) {
 
         logger.info("Received request to update Patient: {}", patientRequest);
@@ -47,7 +47,7 @@ public class PatientController {
 
         logger.info("Patient updated successfully with ID: {}", patientModel);
 
-        return new ResponseEntity<>(PatientMapper.toUserResponse(patientModel), HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/find")
