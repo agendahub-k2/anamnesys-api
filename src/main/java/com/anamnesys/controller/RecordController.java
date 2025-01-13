@@ -115,11 +115,14 @@ public class RecordController {
         return ResponseEntity.ok(RecordMapper.toRecordResponse(formData));
     }
 
-    @PostMapping("/submit-form/{linkId}")
-    public String submitForm(@PathVariable String linkId, @RequestBody String formResponses) {
 
-        System.out.println("Respostas recebidas para o link " + linkId + ": " + formResponses);
-        return "Formulário enviado com sucesso!";
+    @PostMapping("/submit-form/{linkId}")
+    public ResponseEntity<Void> submitForm(@PathVariable String linkId, @RequestBody String formResponses) {
+
+        logger.info("Received answer save: {}", linkId);
+        recordService.saveAnswer(linkId, formResponses);
+        logger.info("Answer saved successfully: {}", linkId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 }

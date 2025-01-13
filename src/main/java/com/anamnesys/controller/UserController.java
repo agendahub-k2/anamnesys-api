@@ -1,9 +1,6 @@
 package com.anamnesys.controller;
 
-import com.anamnesys.controller.dto.LoginRequest;
-import com.anamnesys.controller.dto.LoginResponse;
-import com.anamnesys.controller.dto.UserRequest;
-import com.anamnesys.controller.dto.UserResponse;
+import com.anamnesys.controller.dto.*;
 import com.anamnesys.domain.UserAuthenticated;
 import com.anamnesys.exception.UnauthorizedException;
 import com.anamnesys.repository.model.UserModel;
@@ -39,15 +36,15 @@ public class UserController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequest userRequest) {
+    public ResponseEntity<Void> updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdatedRequest userRequest) {
 
         logger.info("Received request to update user: {}", userRequest);
 
-        UserModel user = userService.updateUser(UserMapper.toModel(userRequest, id));
+        UserModel user = userService.updateUser(UserMapper.toUpdateModel(userRequest, id));
 
         logger.info("User update successfully with ID: {}", user);
 
-        return new ResponseEntity<>(UserMapper.toUserResponse(user), HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -82,6 +79,18 @@ public class UserController {
         UserAuthenticated userAuthenticated = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
 
         return ResponseEntity.ok(UserMapper.toLoginResponse(userAuthenticated));
+    }
+
+    @PostMapping("{userId}/reset_password")
+    public ResponseEntity<Void> resetPassword(@PathVariable Long userId, @Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
+
+        logger.info("Received request to reset_password user: {}", userId);
+
+        userService.resetPassword(userId, resetPasswordRequest.getOldPassword(), resetPasswordRequest.getNewPassword());
+
+        logger.info("successfully reset_password user: {}", userId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/authenticate")

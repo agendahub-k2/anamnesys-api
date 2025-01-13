@@ -6,6 +6,7 @@ import com.anamnesys.controller.dto.RecordRequest;
 import com.anamnesys.controller.dto.RecordResponse;
 import com.anamnesys.controller.dto.SendRecordRequest;
 import com.anamnesys.domain.SendRecord;
+import com.anamnesys.domain.Status;
 import com.anamnesys.repository.model.QuestionModel;
 import com.anamnesys.repository.model.RecordModel;
 import com.anamnesys.repository.model.RecordSendModel;
@@ -105,6 +106,7 @@ public class RecordMapper {
         sendRecord.setRecordId(sendRecordRequest.getRecordId());
         sendRecord.setDateExpiration(sendRecordRequest.getDateExpiration());
         sendRecord.setDateExpiration(sendRecordRequest.getDateExpiration());
+        sendRecord.setStatus(Status.SENT);
 
         return sendRecord;
     }
@@ -119,6 +121,7 @@ public class RecordMapper {
         recordSendModel.setRecordId(sendRecord.getRecordId());
         recordSendModel.setDateExpiration(sendRecord.getDateExpiration());
         recordSendModel.setUserId(sendRecord.getUserId());
+        recordSendModel.setStatus(sendRecord.getStatus());
         return recordSendModel;
     }
 }

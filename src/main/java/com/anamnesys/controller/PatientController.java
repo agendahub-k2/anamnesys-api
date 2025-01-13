@@ -3,6 +3,7 @@ package com.anamnesys.controller;
 import com.anamnesys.controller.dto.PatientRequest;
 import com.anamnesys.controller.dto.PatientResponse;
 import com.anamnesys.repository.model.PatientModel;
+import com.anamnesys.repository.model.RecordSendModel;
 import com.anamnesys.service.PatientService;
 import com.anamnesys.util.PatientMapper;
 import jakarta.validation.Valid;
@@ -15,6 +16,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("{userId}/patientId")
@@ -40,7 +43,7 @@ public class PatientController {
     @PutMapping("/update/{patientId}")
     public ResponseEntity<PatientResponse> updatePatient(@PathVariable Long userId, @PathVariable Long patientId, @Valid @RequestBody PatientRequest patientRequest) {
 
-        logger.info("Received request to update Patient: {}", patientRequest);
+        logger.info("Received request to update Patient: {} userId {} patientId {}", patientRequest, userId, patientId);
 
         PatientModel patientModel = PatientMapper.toModel(patientRequest, patientId, userId);
         patientService.updatePatient(patientModel);
@@ -79,7 +82,6 @@ public class PatientController {
 
     @GetMapping("/{patientId}")
     public ResponseEntity<PatientResponse> getPatientById(
-            @PathVariable Long userId,
             @PathVariable Long patientId) {
 
         logger.info("Received request get patient for patientId: {}", patientId);
@@ -87,6 +89,18 @@ public class PatientController {
 
         logger.info("Process get patient for patientId: {}", patientId);
         return ResponseEntity.ok(PatientMapper.toUserResponse(patientModel));
+    }
+
+    @GetMapping("records/{patientId}")
+    public ResponseEntity<List<RecordSendModel>> getRecordsByUserIdPatientId(
+            @PathVariable Long userId,
+            @PathVariable Long patientId) {
+
+        logger.info("Received request get records for patientId: {} and userId {}", patientId, userId);
+        List<RecordSendModel> sendRecords = patientService.getRecordsByUserIdPatientId(patientId, userId);
+
+        logger.info("Process get records for patientId: {} and userId {}", patientId, userId);
+        return ResponseEntity.ok(sendRecords);
     }
 
 }

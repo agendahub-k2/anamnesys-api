@@ -2,19 +2,16 @@ package com.anamnesys.service;
 
 import com.anamnesys.domain.SendRecord;
 import com.anamnesys.exception.RecordNotFoundException;
+import com.anamnesys.repository.AnswerRepository;
 import com.anamnesys.repository.RecordRepository;
 import com.anamnesys.repository.RecordSendRepository;
-import com.anamnesys.repository.model.QuestionModel;
-import com.anamnesys.repository.model.RecordModel;
-import com.anamnesys.repository.model.RecordSendModel;
-import com.anamnesys.repository.model.TemplateModel;
+import com.anamnesys.repository.model.*;
 import com.anamnesys.util.RecordMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,7 +24,8 @@ public class RecordService {
     @Autowired
     UserService userService;
     @Autowired
-    TemplateService templateService;
+    AnswerRepository answerRepository;
+
 
     public void createRecord(RecordModel model) {
         validatedUser(model.getUserId());
@@ -82,6 +80,17 @@ public class RecordService {
         }
     }
 
+    public void saveAnswer(String linkId, String formResponses) {
+        AnswerModel answerModel = new AnswerModel();
+        answerModel.setId(linkId);
+        answerModel.setAnswer(formResponses);
+        answerRepository.save(answerModel);
+    }
+
+    public List<RecordSendModel> getSendRecordsByUserIdPatientId(Long clientId, Long userId){
+       return recordSendRepository.findByUserIdAndClientId(userId, clientId);
+    }
+
     private void validateSendRecord(SendRecord sendRecord) {
     }
 
@@ -123,5 +132,4 @@ public class RecordService {
     private void validatedUser(Long userId) {
         userService.getUser(userId);
     }
-
 }

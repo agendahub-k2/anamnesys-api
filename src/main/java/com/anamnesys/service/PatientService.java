@@ -3,10 +3,13 @@ package com.anamnesys.service;
 import com.anamnesys.exception.PatientNotFoundException;
 import com.anamnesys.repository.PatientRepository;
 import com.anamnesys.repository.model.PatientModel;
+import com.anamnesys.repository.model.RecordSendModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class PatientService {
@@ -15,6 +18,8 @@ public class PatientService {
     PatientRepository patientRepository;
     @Autowired
     UserService userService;
+    @Autowired
+    RecordService recordService;
 
     public void createPatient(PatientModel model) {
 
@@ -42,6 +47,10 @@ public class PatientService {
         return patientRepository.findByUserIdAndNameContainingIgnoreCase(userId, name, pageable);
     }
 
+    public List<RecordSendModel> getRecordsByUserIdPatientId(Long patientId, Long userId) {
+       return recordService.getSendRecordsByUserIdPatientId(patientId, userId);
+    }
+
     public PatientModel getPatientById(Long patientId) {
         return patientRepository.findById(patientId).orElseThrow(PatientNotFoundException::new);
     }
@@ -55,4 +64,5 @@ public class PatientService {
     private void validatedUser(PatientModel model) {
         userService.getUser(model.getUserId());
     }
+
 }

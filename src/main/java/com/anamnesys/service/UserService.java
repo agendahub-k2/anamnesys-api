@@ -1,5 +1,6 @@
 package com.anamnesys.service;
 
+
 import com.anamnesys.domain.UserAuthenticated;
 import com.anamnesys.exception.EmailOrPasswordException;
 import com.anamnesys.exception.UnauthorizedException;
@@ -14,6 +15,9 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 import static com.anamnesys.util.Constants.USER_NOT_FOUND;
 
@@ -32,7 +36,6 @@ public class UserService {
 
     public UserModel updateUser(UserModel model) {
 
-        setPasswordEncrypt(model);
         UserModel userDataBase = getUser(model.getId());
         setUpdateUser(userDataBase, model);
         return userRepository.save(userDataBase);
@@ -45,10 +48,10 @@ public class UserService {
     }
 
     private void setUpdateUser(UserModel userDataBase, UserModel model) {
-        userDataBase.setCategory(model.getCategory());
         userDataBase.setName(model.getName());
         userDataBase.setPhone(model.getPhone());
-        userDataBase.setPassword(model.getPassword());
+        userDataBase.setEmail(model.getEmail());
+        userDataBase.setUpdateAt(LocalDateTime.now());
     }
 
     public void inactiveUser(Long id) {
@@ -70,6 +73,22 @@ public class UserService {
         }
 
         return userAuthenticated;
+    }
+
+    @Transactional
+    public void resetPassword(Long userId, String oldPassword, String newPassword) {
+
+        UserModel userModel = userRepository.findById(userId).orElseThrow(EmailOrPasswordException::new);
+
+        boolean isValid = passwordService.checkPassword(oldPassword, userModel.getPassword());
+
+        if (isValid) {
+            userModel.setPassword(newPassword);
+            setPasswordEncrypt(userModel);
+            userRepository.updatePasswordByEmailAndId(userModel.getPassword(), LocalDateTime.now(), userModel.getEmail(), userId);
+        } else {
+            throw new EmailOrPasswordException();
+        }
     }
 
     public UserModel getUserByToken(String token) {

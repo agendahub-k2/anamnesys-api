@@ -23,4 +23,5 @@ public class SendRecord {
     private Boolean isSendWhatsapp;
     private Boolean isSendMail;
     private Long clientId;
+    private Status status;
 }

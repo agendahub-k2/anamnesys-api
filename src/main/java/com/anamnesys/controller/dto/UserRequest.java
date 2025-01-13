@@ -32,3 +32,4 @@ public class UserRequest {
     private String category;
 
 }
+

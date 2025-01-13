@@ -1,5 +1,6 @@
 package com.anamnesys.repository.model;
 
+import com.anamnesys.domain.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,8 +23,13 @@ public class RecordSendModel {
     private Long recordId;
 
     private LocalDateTime dateExpiration;
+
     @Column(name = "message", length = 500)
     private String message;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 1, nullable = false)
+    private Status status;
 
     @Column(name = "whatsapp", nullable = false)
     private Boolean isSendWhatsapp;

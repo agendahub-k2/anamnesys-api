@@ -3,6 +3,7 @@ package com.anamnesys.util;
 import com.anamnesys.controller.dto.LoginResponse;
 import com.anamnesys.controller.dto.UserRequest;
 import com.anamnesys.controller.dto.UserResponse;
+import com.anamnesys.controller.dto.UserUpdatedRequest;
 import com.anamnesys.domain.UserAuthenticated;
 import com.anamnesys.repository.model.UserModel;
 
@@ -17,7 +18,15 @@ public class UserMapper {
         userModel.setPhone(request.getPhone());
         userModel.setId(id);
         userModel.setStatus(STATUS.ACTIVE.name());
-        userModel.setStatus(STATUS.ACTIVE.name());
+        return userModel;
+    }
+
+    public static UserModel toUpdateModel(UserUpdatedRequest request, Long id) {
+        UserModel userModel = new UserModel();
+        userModel.setName(request.getName());
+        userModel.setEmail(request.getEmail());
+        userModel.setPhone(request.getPhone());
+        userModel.setId(id);
         return userModel;
     }
 
