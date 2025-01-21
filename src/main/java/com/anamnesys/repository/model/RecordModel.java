@@ -48,6 +48,9 @@ public class RecordModel {
     @Column(name = "template_id")
     private Long templateId;
 
+    @Column(name = "term_id")
+    private Long termId;
+
     @PrePersist
     protected void onCreate() {
         if (questions == null || questions.isEmpty()) {

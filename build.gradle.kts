@@ -29,6 +29,7 @@ dependencies {
     implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.security:spring-security-crypto:6.0.2")
+    implementation("com.itextpdf:itext7-core:8.0.4")
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("mysql:mysql-connector-java:8.0.32")
     compileOnly("org.projectlombok:lombok")

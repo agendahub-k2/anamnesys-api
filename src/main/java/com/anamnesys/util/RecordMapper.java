@@ -6,11 +6,10 @@ import com.anamnesys.controller.dto.RecordRequest;
 import com.anamnesys.controller.dto.RecordResponse;
 import com.anamnesys.controller.dto.SendRecordRequest;
 import com.anamnesys.domain.SendRecord;
-import com.anamnesys.domain.Status;
+import com.anamnesys.domain.STATUS_RECORD;
 import com.anamnesys.repository.model.QuestionModel;
 import com.anamnesys.repository.model.RecordModel;
 import com.anamnesys.repository.model.RecordSendModel;
-import jakarta.validation.Valid;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +23,7 @@ public class RecordMapper {
 
         RecordModel model = new RecordModel();
         model.setId(recordId);
+        model.setTermId(request.getTermId());
         model.setDescription(request.getDescription());
         model.setName(request.getName());
         model.setUserId(userId);
@@ -90,7 +90,6 @@ public class RecordMapper {
         response.setName(model.getName());
         response.setUserId(model.getUserId());
         response.setDescription(model.getDescription());
-        response.setDescription(model.getDescription());
         response.setSegment(SegmentMapper.getSegment(model.getSegment()));
 
         return response;
@@ -106,7 +105,7 @@ public class RecordMapper {
         sendRecord.setRecordId(sendRecordRequest.getRecordId());
         sendRecord.setDateExpiration(sendRecordRequest.getDateExpiration());
         sendRecord.setDateExpiration(sendRecordRequest.getDateExpiration());
-        sendRecord.setStatus(Status.SENT);
+        sendRecord.setStatus(STATUS_RECORD.ENVIADO);
 
         return sendRecord;
     }

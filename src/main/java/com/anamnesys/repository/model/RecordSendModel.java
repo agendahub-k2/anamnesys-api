@@ -1,11 +1,10 @@
 package com.anamnesys.repository.model;
 
-import com.anamnesys.domain.Status;
+import com.anamnesys.domain.STATUS_RECORD;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "SEND_RECORD")
@@ -29,7 +28,7 @@ public class RecordSendModel {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 1, nullable = false)
-    private Status status;
+    private STATUS_RECORD status;
 
     @Column(name = "whatsapp", nullable = false)
     private Boolean isSendWhatsapp;
@@ -46,9 +45,17 @@ public class RecordSendModel {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updateAt;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updateAt = LocalDateTime.now();
     }
 }
 

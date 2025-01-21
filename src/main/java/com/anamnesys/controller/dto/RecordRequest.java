@@ -17,6 +17,8 @@ public class RecordRequest {
 
     private Long templateId;
 
+    private Long termId;
+
     @NotBlank(message = "Name cannot be empty or null")
     @Size(max = 400, min = 4, message = "Name should be between 4 and 40 characters")
     private String name;

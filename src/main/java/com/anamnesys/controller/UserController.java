@@ -14,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/user")
@@ -91,6 +94,24 @@ public class UserController {
         logger.info("successfully reset_password user: {}", userId);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("{userId}/dashboard")
+    public ResponseEntity<PageDashboardResponse> getDashboard(@PathVariable Long userId, @PageableDefault Pageable pageable) {
+
+        logger.info("Received request dashboard user: {}", userId);
+
+        Page<InfoDashboard> dashboard = userService.getDashboard(userId, pageable);
+
+        PageDashboardResponse response = new PageDashboardResponse();
+        response.setContent(dashboard.getContent());
+        response.setTotalPages(dashboard.getTotalPages());
+        response.setTotalElements(dashboard.getTotalElements());
+        response.setNumber(dashboard.getNumber());
+
+        logger.info("successfully get dashboard user: {}", userId);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/authenticate")

@@ -1,10 +1,12 @@
 package com.anamnesys.service;
 
 
+import com.anamnesys.controller.dto.InfoDashboard;
 import com.anamnesys.domain.UserAuthenticated;
 import com.anamnesys.exception.EmailOrPasswordException;
 import com.anamnesys.exception.UnauthorizedException;
 import com.anamnesys.exception.UserNotFoundException;
+import com.anamnesys.repository.RecordSendRepository;
 import com.anamnesys.repository.UserRepository;
 import com.anamnesys.repository.model.UserModel;
 import com.anamnesys.util.Constants;
@@ -14,10 +16,13 @@ import com.anamnesys.util.UserMapper;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.anamnesys.util.Constants.USER_NOT_FOUND;
 
@@ -28,6 +33,9 @@ public class UserService {
     UserRepository userRepository;
     @Autowired
     PasswordService passwordService;
+    @Autowired
+    RecordSendRepository recordSendRepository;
+
 
     public UserModel createUser(UserModel model) {
         setPasswordEncrypt(model);
@@ -99,6 +107,36 @@ public class UserService {
         } catch (JWTDecodeException ex) {
             throw new UnauthorizedException(token);
         }
+    }
+
+    public Page<InfoDashboard> getDashboard(Long userId, Pageable pageable) {
+
+        if (pageable.getSort().isEmpty()) {
+            pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.desc("created_at")));
+        }
+
+        Page<Object[]> records = recordSendRepository.findSendRecordsByUserIdAndClientId(
+                userId, pageable
+        );
+
+        List<InfoDashboard> infosDashboard = records.map(row ->
+                new InfoDashboard(
+                        (String) row[0],   // status
+                        (Long) row[1],     // clientId
+                        (String) row[2],   // recordName
+                        ((Timestamp) row[3]).toLocalDateTime(), // createdAt
+                        (boolean) row[4],  // email
+                        (boolean) row[5],  // whatsapp
+                        (String) row[6] ,   // patientName
+                        (String) row[7]    // id link
+                )
+        ).getContent();
+
+        return new PageImpl<>(
+                infosDashboard,
+                pageable,
+                records.getTotalElements()
+        );
     }
 
     private void setPasswordEncrypt(UserModel user) {

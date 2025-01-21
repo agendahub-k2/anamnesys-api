@@ -110,9 +110,9 @@ public class RecordController {
     @GetMapping("/form-data/{linkId}")
     public ResponseEntity<RecordResponse> getFormData(@PathVariable Long userId, @PathVariable String linkId) {
         logger.info("Received get Form Data: {}", linkId);
-        RecordModel formData = recordService.getFormData(linkId);
-
-        return ResponseEntity.ok(RecordMapper.toRecordResponse(formData));
+        RecordResponse response = recordService.getFormData(linkId);
+        logger.info("successfully get Form Data: {}", linkId);
+        return ResponseEntity.ok(response);
     }
 
 

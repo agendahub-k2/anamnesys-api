@@ -1,10 +1,15 @@
 package com.anamnesys.service;
 
+import com.anamnesys.controller.dto.RecordResponse;
+import com.anamnesys.controller.dto.TermResponse;
+import com.anamnesys.domain.STATUS_RECORD;
 import com.anamnesys.domain.SendRecord;
+import com.anamnesys.exception.AnswerExistingException;
 import com.anamnesys.exception.RecordNotFoundException;
 import com.anamnesys.repository.AnswerRepository;
 import com.anamnesys.repository.RecordRepository;
 import com.anamnesys.repository.RecordSendRepository;
+import com.anamnesys.repository.TermRepository;
 import com.anamnesys.repository.model.*;
 import com.anamnesys.util.RecordMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +30,8 @@ public class RecordService {
     UserService userService;
     @Autowired
     AnswerRepository answerRepository;
+    @Autowired
+    TermRepository termRepository;
 
 
     public void createRecord(RecordModel model) {
@@ -60,10 +67,21 @@ public class RecordService {
     }
 
 
-    public RecordModel getFormData(String linkId) {
+    public RecordResponse getFormData(String linkId) {
         try {
             RecordSendModel recordSendModel = recordSendRepository.getReferenceById(linkId);
-            return this.getRecordById(recordSendModel.getRecordId(), recordSendModel.getUserId());
+            if (recordSendModel.getStatus() == STATUS_RECORD.RECEBIDO) {
+                throw new AnswerExistingException("Ficha já enviada.");
+            }
+            RecordModel recordById = this.getRecordById(recordSendModel.getRecordId(), recordSendModel.getUserId());
+            TermModel termModel = termRepository.getReferenceById(recordById.getTermId());
+            TermResponse termResponse = new TermResponse();
+            termResponse.setId(termModel.getId());
+            termResponse.setTerm(termModel.getTerm());
+            termResponse.setName(termModel.getName());
+            RecordResponse recordResponse = RecordMapper.toRecordResponse(recordById);
+            recordResponse.setTerm(termResponse);
+            return recordResponse;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -84,11 +102,19 @@ public class RecordService {
         AnswerModel answerModel = new AnswerModel();
         answerModel.setId(linkId);
         answerModel.setAnswer(formResponses);
+
+        boolean exists = answerRepository.existsById(linkId);
+
+        if (exists) {
+            throw new AnswerExistingException("Ficha já enviada.");
+        }
+
+        recordSendRepository.updateStatusAndUpdateAt(linkId, STATUS_RECORD.RECEBIDO);
         answerRepository.save(answerModel);
     }
 
-    public List<RecordSendModel> getSendRecordsByUserIdPatientId(Long clientId, Long userId){
-       return recordSendRepository.findByUserIdAndClientId(userId, clientId);
+    public List<RecordSendModel> getSendRecordsByUserIdPatientId(Long clientId, Long userId) {
+        return recordSendRepository.findByUserIdAndClientId(userId, clientId);
     }
 
     private void validateSendRecord(SendRecord sendRecord) {

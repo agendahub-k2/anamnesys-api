@@ -1,9 +1,5 @@
 package com.anamnesys.domain;
 
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -23,5 +19,5 @@ public class SendRecord {
     private Boolean isSendWhatsapp;
     private Boolean isSendMail;
     private Long clientId;
-    private Status status;
+    private STATUS_RECORD status;
 }

@@ -3,9 +3,11 @@ package com.anamnesys.config;
 import com.anamnesys.repository.QuestionRepository;
 import com.anamnesys.repository.SegmentRepository;
 import com.anamnesys.repository.TemplateRepository;
+import com.anamnesys.repository.TermRepository;
 import com.anamnesys.repository.model.QuestionModel;
 import com.anamnesys.repository.model.SegmentModel;
 import com.anamnesys.repository.model.TemplateModel;
+import com.anamnesys.repository.model.TermModel;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,10 +19,19 @@ import java.util.List;
 @Configuration
 public class DataLoader {
 
+    public static final String TERMO_DE_COMPROMISSO = "Declaro que as informações fornecidas nesta ficha são completas, corretas e verdadeiras. "
+            + "Estou ciente de que esta ficha de anamnese tem como finalidade auxiliar no atendimento e que as informações aqui contidas serão tratadas "
+            + "de acordo com a legislação vigente, incluindo a Lei Geral de Proteção de Dados (LGPD). "
+            + "Compreendo que este documento não substitui uma consulta médica ou de um profissional especializado. "
+            + "Autorizo o uso dos dados para fins exclusivamente relacionados ao atendimento e aceito.";
+
     @Bean
     public CommandLineRunner loadData(SegmentRepository segmentRepository,
                                       TemplateRepository templateRepository,
-                                      QuestionRepository questionRepository) {
+                                      QuestionRepository questionRepository,
+                                      TermRepository termRepository) {
+
+        TermModel term = new TermModel(null, "Termo padrão anamnese" ,TERMO_DE_COMPROMISSO, null, null, null);
 
         // Criação do segmento
         SegmentModel saude = new SegmentModel(null, "Saúde", "Foco em histórico médico e alergias.");
@@ -35,6 +46,14 @@ public class DataLoader {
         );
 
         return args -> {
+
+            // Verifica se o segmento já existe, caso contrário, salva
+            if (termRepository.count() == 0) {
+                termRepository.save(term);
+            } else {
+                System.out.println("Termos - Dados já estão no banco. Nenhuma inserção realizada.");
+            }
+
             // Verifica se o segmento já existe, caso contrário, salva
             if (segmentRepository.count() == 0) {
                 segmentRepository.save(saude);
