@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())  // Desativa CSRF para simplificar em APIs REST
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Define sessão como stateless
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/user/create", "/user/login", "/user/authenticate").permitAll()  // Permite acesso a esses endpoints sem autenticação
+                        .requestMatchers("/user/create", "/user/login", "/user/authenticate", "/ws/**").permitAll()  // Permite acesso a esses endpoints sem autenticação
                         .anyRequest().authenticated()  // Exige autenticação para os demais endpoints
                 ).cors(cors -> cors.configurationSource(corsConfigurationSource));
 

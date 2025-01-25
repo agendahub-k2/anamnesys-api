@@ -14,6 +14,7 @@ import java.util.List;
 
 @Component
 public class NotificacaoAniversarioJob {
+
     private final PatientRepository patientRepository;
     private final WebSocketService webSocketService;
     private static final Logger logger = LoggerFactory.getLogger(NotificacaoAniversarioJob.class);
@@ -38,13 +39,11 @@ public class NotificacaoAniversarioJob {
             birthdays.forEach(it -> {
                 String message = "🎉 Hoje é o aniversário de " + it.getName() + "!";
                 logger.info("{} - userId: {}", message, it.getUserId());
-                webSocketService.sentNotification(message, it.getUserId());
+                webSocketService.sendNotification(message, it.getUserId().toString());
             });
 
         } catch (Exception e) {
             logger.error("Error in NotificacaoAniversarioJob: ", e);
         }
-
     }
 }
-

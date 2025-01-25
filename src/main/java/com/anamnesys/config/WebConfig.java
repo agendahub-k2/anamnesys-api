@@ -21,19 +21,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedHeaders("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With")
                 .allowCredentials(false); // Ou true, dependendo das suas necessidades
     }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000");
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
-        configuration.setAllowCredentials(false); // Ajuste conforme necessário
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
 }
 
 

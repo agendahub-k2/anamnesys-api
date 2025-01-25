@@ -1,17 +1,54 @@
 package com.anamnesys.service;
 
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketHandler;
 
-@Component
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
+@Service
 public class WebSocketService {
-    private final SimpMessagingTemplate template;
 
-    public WebSocketService(SimpMessagingTemplate template) {
-        this.template = template;
+    // Armazena as sessões ativas
+    private Set<WebSocketSession> sessions = new HashSet<>();
+
+    // Método para adicionar uma nova sessão ao conjunto de sessões
+    public void addSession(WebSocketSession session) {
+        sessions.add(session);
     }
 
-    public void sentNotification(String message, Long userId) {
-        template.convertAndSend("/users/" + userId + "/notifications", message);
+    // Método para remover uma sessão quando ela é fechada
+    public void removeSession(WebSocketSession session) {
+        sessions.remove(session);
+    }
+
+    // Método para enviar uma notificação para um usuário específico (baseado em userId)
+    public void sendNotification(String message, String userId) {
+        System.out.println("Sessões ativas: " + sessions.size());
+        sessions.forEach(session -> {
+            try {
+                if (session.isOpen()) {
+                    // Envia a mensagem para a sessão específica
+                    session.sendMessage(new TextMessage(message));
+                }
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+            }
+        });
+    }
+
+
+    // Método para enviar uma notificação para todas as sessões
+    public void broadcast(String message) {
+        for (WebSocketSession session : sessions) {
+            try {
+                session.sendMessage(new TextMessage(message));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
