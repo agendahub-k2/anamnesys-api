@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -39,6 +40,11 @@ public class RecordService {
         validatedRecord(model);
         setOptions(model);
         repository.save(model);
+    }
+
+    @Transactional
+    public void deleteRecord(Long userId, Long recordId) {
+        repository.deleteByIdAndUserId(recordId, userId);
     }
 
     public RecordModel updateRecord(RecordModel model) {
@@ -69,18 +75,25 @@ public class RecordService {
 
     public RecordResponse getFormData(String linkId) {
         try {
+            TermModel termModel = null;
+            TermResponse termResponse = null;
+
             RecordSendModel recordSendModel = recordSendRepository.getReferenceById(linkId);
             if (recordSendModel.getStatus() == STATUS_RECORD.RECEBIDO) {
                 throw new AnswerExistingException("Ficha já enviada.");
             }
             RecordModel recordById = this.getRecordById(recordSendModel.getRecordId(), recordSendModel.getUserId());
-            TermModel termModel = termRepository.getReferenceById(recordById.getTermId());
-            TermResponse termResponse = new TermResponse();
-            termResponse.setId(termModel.getId());
-            termResponse.setTerm(termModel.getTerm());
-            termResponse.setName(termModel.getName());
+            if(recordById.getTermId() != null){
+                termModel  = termRepository.getReferenceById(recordById.getTermId());
+                termResponse = new TermResponse();
+                termResponse.setId(termModel.getId());
+                termResponse.setTerm(termModel.getTerm());
+                termResponse.setName(termModel.getName());
+            }
+
             RecordResponse recordResponse = RecordMapper.toRecordResponse(recordById);
             recordResponse.setTerm(termResponse);
+
             return recordResponse;
         } catch (Exception e) {
             throw new RuntimeException(e);

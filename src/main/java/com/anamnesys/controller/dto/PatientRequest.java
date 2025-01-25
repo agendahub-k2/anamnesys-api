@@ -1,10 +1,13 @@
 package com.anamnesys.controller.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -22,5 +25,8 @@ public class PatientRequest {
     @NotBlank(message = "phone cannot be empty or null")
     @Size(max = 15, message = "Telefone should not be longer than 15 characters")
     private String phone;
+
+    @JsonFormat(pattern = "dd/MM/yyyy")
+    private LocalDate birth;
 
 }

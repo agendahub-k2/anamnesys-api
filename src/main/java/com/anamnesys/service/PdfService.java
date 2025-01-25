@@ -53,34 +53,79 @@ public class PdfService {
             // Parse do JSON de respostas
             ObjectMapper mapper = new ObjectMapper();
             JsonNode answersNode = mapper.readTree(answerBD.getAnswer());
-            JsonNode questionsAndAnswers = answersNode.get("perguntasComRespostas");
+            JsonNode questionsAndAnswers = answersNode != null ? answersNode.get("perguntasComRespostas") : null;
 
-            // Cria tabela para as respostas
-            Table qaTable = new Table(UnitValue.createPercentArray(new float[]{40, 60})).useAllAvailableWidth();
+            if (questionsAndAnswers != null && questionsAndAnswers.isArray()) {
+                // Cria tabela para as respostas
+                Table qaTable = new Table(UnitValue.createPercentArray(new float[]{40, 60})).useAllAvailableWidth();
 
-            // Adiciona cada pergunta e resposta na tabela
-            for (JsonNode qa : questionsAndAnswers) {
-                String type = qa.get("tipo").asText();
-                if ("TERM".equalsIgnoreCase(type)) {
-                    continue;
+                StringBuilder termsText = new StringBuilder(); // Para armazenar os termos encontrados
+
+                // Adiciona cada pergunta e resposta na tabela
+                for (JsonNode qa : questionsAndAnswers) {
+                    String type = qa.has("tipo") ? qa.get("tipo").asText() : "OUTRO";
+                    String question = qa.has("texto") ? qa.get("texto").asText() : "Pergunta não especificada";
+                    String answer = qa.has("resposta") && !qa.get("resposta").isNull()
+                            ? qa.get("resposta").asText()
+                            : "Não informado";
+
+                    if ("TERM".equalsIgnoreCase(type)) {
+                        termsText.append(question).append("\n");
+                        continue; // Ignora termos na tabela principal
+                    }
+
+                    qaTable.addCell(createCell(question, false));
+                    qaTable.addCell(createCell(answer, true));
                 }
-                String question = qa.get("texto").asText();
-                String answer = qa.has("resposta") && !qa.get("resposta").isNull()
-                        ? qa.get("resposta").asText()
-                        : "Não informado";
 
-                qaTable.addCell(createCell(question, false));
-                qaTable.addCell(createCell(answer, true));
+                document.add(qaTable);
+
+                if (!termsText.isEmpty()) {
+                    document.add(new Paragraph("\n").setFontSize(12));
+
+                    // Adiciona o título
+                    Paragraph termsTitle = new Paragraph("Termo de compromisso e responsabilidade")
+                            .setFontSize(14)
+                            .setBold();
+                    document.add(termsTitle);
+
+                    // Adiciona o texto dos termos
+                    Paragraph termsParagraph = new Paragraph(termsText.toString())
+                            .setFontSize(10)
+                            .setTextAlignment(TextAlignment.JUSTIFIED);
+                    document.add(termsParagraph);
+
+                    // Adiciona o checkbox marcado e a frase de concordância
+                    document.add(new Paragraph("\n").setFontSize(6)); // Espaço
+                    Paragraph checkbox = new Paragraph("☑ Eu concordo com os termos acima.")
+                            .setFontSize(10)
+                            .setBold()
+                            .setMarginTop(10);
+                    document.add(checkbox);
+
+                    // Adiciona a assinatura (nome do usuário)
+                    document.add(new Paragraph("\n").setFontSize(6));
+                    Paragraph signatureLabel = new Paragraph("Aceito por:").setFontSize(10).setBold();
+                    Paragraph signature = new Paragraph(answerBD.getName())
+                            .setFontSize(12)
+                            .setItalic()
+                            .setTextAlignment(TextAlignment.LEFT)
+                            .setMarginTop(5)
+                            .setUnderline();
+                    document.add(signatureLabel);
+                    document.add(signature);
+                }
+
+            } else {
+                document.add(new Paragraph("Nenhuma pergunta ou resposta disponível.").setFontSize(10).setTextAlignment(TextAlignment.LEFT));
             }
 
-            document.add(qaTable);
-
             // Adiciona rodapé
-            document.add(new Paragraph("\n").setFontSize(6));
-            Paragraph footer = new Paragraph("Documento gerado por " + answerBD.getNameUser() +" em "+
+            Paragraph footer = new Paragraph("Documento gerado por " + answerBD.getNameUser() + " em " +
                     LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")))
                     .setFontSize(8)
-                    .setTextAlignment(TextAlignment.RIGHT);
+                    .setTextAlignment(TextAlignment.RIGHT)
+                    .setMarginTop(20);
             document.add(footer);
 
             document.close();
@@ -105,4 +150,3 @@ public class PdfService {
                 .setVerticalAlignment(VerticalAlignment.MIDDLE);
     }
 }
-

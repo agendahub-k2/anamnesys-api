@@ -44,6 +44,16 @@ public class RecordController {
         return new ResponseEntity<>(RecordMapper.toRecordResponse(model), HttpStatus.CREATED);
     }
 
+    @DeleteMapping("/{recordId}")
+    public ResponseEntity<Void> deleteRecord(@PathVariable Long userId, @PathVariable Long recordId) {
+
+        logger.info("Received request to delete record: {}", recordId);
+        recordService.deleteRecord(userId, recordId);
+        logger.info("Record delete successfully with ID: {} ", recordId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping("{recordId}/update")
     public ResponseEntity<RecordResponse> updateRecord(@PathVariable Long userId, @PathVariable Long recordId, @Valid @RequestBody RecordRequest record) {
 

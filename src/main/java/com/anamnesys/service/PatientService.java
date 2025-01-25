@@ -59,6 +59,7 @@ public class PatientService {
         patientModelDataBase.setName(model.getName());
         patientModelDataBase.setEmail(model.getEmail());
         patientModelDataBase.setPhone(model.getPhone());
+        patientModelDataBase.setBirth(model.getBirth());
     }
 
     private void validatedUser(PatientModel model) {

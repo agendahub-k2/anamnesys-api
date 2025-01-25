@@ -13,4 +13,5 @@ public interface RecordRepository extends JpaRepository<RecordModel, Long> {
 
     Page<RecordModel> findByUserId(Long userId, Pageable pageable);
     List<RecordModel> findByUserIdAndNameContaining(Long userId, String name);
+    void deleteByIdAndUserId(Long id, Long userId);
 }

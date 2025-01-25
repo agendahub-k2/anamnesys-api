@@ -13,6 +13,7 @@ public class PatientMapper {
         patientModel.setPhone(request.getPhone());
         patientModel.setEmail(request.getEmail());
         patientModel.setUserId(userId);
+        patientModel.setBirth(request.getBirth());
         return patientModel;
     }
 
@@ -26,6 +27,7 @@ public class PatientMapper {
         response.setCreatedAt(model.getCreatedAt().toString());
         response.setCreatedAt(model.getCreatedAt().toString());
         response.setUserId(model.getUserId());
+        response.setBirth(model.getBirth());
         return response;
     }
 }

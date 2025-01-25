@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,6 +28,9 @@ public class PatientModel {
 
     @Column(name = "email", nullable = false, length = 100)
     private String email;
+
+    @Column(name = "birth", nullable = true)
+    private LocalDate birth;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
