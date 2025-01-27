@@ -106,6 +106,7 @@ public class RecordMapper {
         sendRecord.setDateExpiration(sendRecordRequest.getDateExpiration());
         sendRecord.setDateExpiration(sendRecordRequest.getDateExpiration());
         sendRecord.setStatus(STATUS_RECORD.ENVIADO);
+        sendRecord.setReturnDt(sendRecordRequest.getReturnDt());
 
         return sendRecord;
     }
@@ -121,6 +122,7 @@ public class RecordMapper {
         recordSendModel.setDateExpiration(sendRecord.getDateExpiration());
         recordSendModel.setUserId(sendRecord.getUserId());
         recordSendModel.setStatus(sendRecord.getStatus());
+        recordSendModel.setReturnDt(sendRecord.getReturnDt());
         return recordSendModel;
     }
 }

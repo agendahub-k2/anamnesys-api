@@ -31,5 +31,7 @@ public class SendRecordRequest {
     @Min(value = 1, message = "O clientId deve ser maior que zero.")
     private Long clientId;
 
+    private LocalDateTime returnDt;
+
 }
 

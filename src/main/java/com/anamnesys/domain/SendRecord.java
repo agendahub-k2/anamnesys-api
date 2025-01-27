@@ -20,4 +20,5 @@ public class SendRecord {
     private Boolean isSendMail;
     private Long clientId;
     private STATUS_RECORD status;
+    private LocalDateTime returnDt;
 }

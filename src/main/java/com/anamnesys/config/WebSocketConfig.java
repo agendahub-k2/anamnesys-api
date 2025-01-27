@@ -11,13 +11,14 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
+import java.util.Map;
+
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
     private final WebSocketService webSocketService;
 
-    // Injeção do serviço WebSocket
     @Autowired
     public WebSocketConfig(WebSocketService webSocketService) {
         this.webSocketService = webSocketService;
@@ -25,34 +26,65 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        // Registra o WebSocketHandler
         registry.addHandler(new WebSocketHandler() {
+
             @Override
             public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-                // Adiciona a sessão ao serviço após a conexão ser estabelecida
-                webSocketService.addSession(session);
+                // Extrai o userId da query string
+                String userId = extractUserIdFromSession(session);
+                if (userId != null) {
+                    webSocketService.addSession(userId, session);
+                    System.out.println("Conexão estabelecida para userId: " + userId);
+                } else {
+                    System.out.println("Conexão rejeitada: userId não encontrado na query string.");
+                    session.close(CloseStatus.BAD_DATA);
+                }
             }
 
             @Override
             public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-                // Pode adicionar lógica para lidar com mensagens recebidas
+                // Pode adicionar lógica para lidar com mensagens recebidas, se necessário
             }
 
             @Override
             public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-                // Lógica de erro, se necessário
+                // Lida com erros de transporte
+                System.err.println("Erro no WebSocket para sessão: " + session.getId());
+                exception.printStackTrace();
             }
 
             @Override
             public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-                // Remove a sessão quando a conexão for fechada
-                webSocketService.removeSession(session);
+                // Extrai o userId e remove a sessão
+                String userId = extractUserIdFromSession(session);
+                if (userId != null) {
+                    webSocketService.removeSession(userId);
+                    System.out.println("Conexão encerrada para userId: " + userId);
+                }
             }
 
             @Override
             public boolean supportsPartialMessages() {
                 return false;
             }
+
+            private String extractUserIdFromSession(WebSocketSession session) {
+                try {
+                    // Obtém os parâmetros da query string
+                    Map<String, String> queryParams = splitQuery(session.getUri().getQuery());
+                    return queryParams.get("userId"); // Retorna o userId se presente
+                } catch (Exception e) {
+                    System.err.println("Erro ao extrair userId da sessão: " + e.getMessage());
+                    return null;
+                }
+            }
+
+            private Map<String, String> splitQuery(String query) {
+                return query != null
+                        ? Map.of(query.split("=")[0], query.split("=")[1]) // Simplesmente divide a string
+                        : Map.of();
+            }
+
         }, "/ws").setAllowedOrigins("*");
     }
 }

@@ -127,8 +127,9 @@ public class UserService {
                         ((Timestamp) row[3]).toLocalDateTime(), // createdAt
                         (boolean) row[4],  // email
                         (boolean) row[5],  // whatsapp
-                        (String) row[6] ,   // patientName
-                        (String) row[7]    // id link
+                        (String) row[6],   // patientName
+                        (String) row[7],   // id link
+                        row[8] != null ? ((Timestamp) row[8]).toLocalDateTime() : null  // returnDt
                 )
         ).getContent();
 

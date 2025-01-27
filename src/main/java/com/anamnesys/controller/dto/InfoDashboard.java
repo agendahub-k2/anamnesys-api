@@ -21,4 +21,5 @@ public class InfoDashboard {
     private boolean whatsapp;
     private String patientName;
     private String linkId;
+    private LocalDateTime returnDt;
 }

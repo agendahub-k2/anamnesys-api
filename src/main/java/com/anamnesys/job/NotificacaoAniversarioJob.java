@@ -25,7 +25,7 @@ public class NotificacaoAniversarioJob {
         this.webSocketService = webSocketService;
     }
 
-    @Scheduled(cron = "0 0/1 * * * ?")
+    @Scheduled(cron = "0 0 9,14 * * ?")
     public void verificarAniversariantes() {
         logger.info("Initiated NotificacaoAniversarioJob");
 
@@ -39,7 +39,7 @@ public class NotificacaoAniversarioJob {
             birthdays.forEach(it -> {
                 String message = "🎉 Hoje é o aniversário de " + it.getName() + "!";
                 logger.info("{} - userId: {}", message, it.getUserId());
-                webSocketService.sendNotification(message, it.getUserId().toString());
+                webSocketService.sendNotification(message, it.getUserId().toString(), "birth_topic");
             });
 
         } catch (Exception e) {

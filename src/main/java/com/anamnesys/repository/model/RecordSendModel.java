@@ -48,6 +48,9 @@ public class RecordSendModel {
     @Column(name = "updated_at")
     private LocalDateTime updateAt;
 
+    @Column(name = "return_dt", nullable = true)
+    private LocalDateTime returnDt;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
