@@ -2,6 +2,7 @@ package com.anamnesys.service;
 
 
 import com.anamnesys.controller.dto.InfoDashboard;
+import com.anamnesys.controller.dto.LinkDTO;
 import com.anamnesys.domain.UserAuthenticated;
 import com.anamnesys.exception.EmailOrPasswordException;
 import com.anamnesys.exception.UnauthorizedException;
@@ -15,12 +16,16 @@ import com.anamnesys.util.STATUS;
 import com.anamnesys.util.UserMapper;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,6 +40,12 @@ public class UserService {
     PasswordService passwordService;
     @Autowired
     RecordSendRepository recordSendRepository;
+    @Autowired
+    EmailService emailService;
+    @Value("${spring.mail.username}")
+    private String from;
+    @Value("${form.base.url}")
+    String formBaseUrl;
 
 
     public UserModel createUser(UserModel model) {
@@ -92,11 +103,27 @@ public class UserService {
 
         if (isValid) {
             userModel.setPassword(newPassword);
+            userModel.setUpdateAt(LocalDateTime.now());
             setPasswordEncrypt(userModel);
             userRepository.updatePasswordByEmailAndId(userModel.getPassword(), LocalDateTime.now(), userModel.getEmail(), userId);
         } else {
             throw new EmailOrPasswordException();
         }
+    }
+
+    @Transactional
+    public void resetPasswordByToken(String newPassword, String token) {
+        DecodedJWT decodedJWT = JwtUtil.verifyTokenByResetPassword(token);
+        boolean tokenExpired = JwtUtil.isTokenExpired(decodedJWT);
+        if(!tokenExpired){
+            System.out.println("TOKEN EXPIRADO");
+        }
+        String email = decodedJWT.getSubject();
+        UserModel userModel = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND + email));
+        userModel.setPassword(newPassword);
+        userModel.setUpdateAt(LocalDateTime.now());
+        setPasswordEncrypt(userModel);
+        userRepository.updatePasswordByEmailAndId(userModel.getPassword(), LocalDateTime.now(), userModel.getEmail(), userModel.getId());
     }
 
     public UserModel getUserByToken(String token) {
@@ -139,6 +166,19 @@ public class UserService {
                 records.getTotalElements()
         );
     }
+
+    public void sendResetPassword(String email) {
+        UserModel user = userRepository.findByEmail(email).orElseThrow(EmailOrPasswordException::new);
+        String token = JwtUtil.generateResetPassWordToken(user.getEmail());
+        String link = formBaseUrl + "reset_password?token=" + token;
+
+        String emailBody = Constants.EMAIL_TEMPLATE_RESET
+                .replace("{0}", user.getName())
+                .replace("{1}", link);
+
+        emailService.enviarEmail(user.getEmail(), Constants.MESSAGE_SEND_SUBJECT, emailBody);
+    }
+
 
     private void setPasswordEncrypt(UserModel user) {
         user.setPassword(passwordService.hashPassword(user.getPassword()));

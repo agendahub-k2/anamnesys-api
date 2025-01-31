@@ -13,7 +13,6 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -29,8 +28,6 @@ public class RecordController {
 
     @Autowired
     private RecordService recordService;
-    @Value("${form.base.url}")
-    private String formBaseUrl;
     private static final Logger logger = LoggerFactory.getLogger(RecordController.class);
 
     @PostMapping("/create")
@@ -110,11 +107,9 @@ public class RecordController {
 
         logger.info("Received request send record: {} {}", userId, sendRecordRequest);
         SendRecord sendRecord = RecordMapper.toSendRecord(sendRecordRequest, userId);
-        recordService.sendRecord(sendRecord);
+        LinkDTO linkDTO = recordService.sendRecord(sendRecord);
         logger.info("Record send successfully with ID: {} ", sendRecord.getId());
-        String linkId = userId + "/record/" + sendRecord.getId();
-        String formUrl = formBaseUrl + linkId;
-        return ResponseEntity.ok(new LinkDTO(formUrl));
+        return ResponseEntity.ok(linkDTO);
     }
 
     @GetMapping("/form-data/{linkId}")

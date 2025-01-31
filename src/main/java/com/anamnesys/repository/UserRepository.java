@@ -19,5 +19,4 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
                                @Param("updateAt") LocalDateTime updateAt,
                                @Param("email") String email,
                                @Param("id") Long id);
-
 }

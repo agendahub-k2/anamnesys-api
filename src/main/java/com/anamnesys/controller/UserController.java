@@ -96,6 +96,31 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping("/reset_password_token")
+    public ResponseEntity<Void> resetPasswordByToken(@Valid @RequestBody ResetPasswordByTokenRequest resetPasswordByTokenRequest,
+                                                     @RequestHeader("Authorization") String authorizationHeader) {
+
+        logger.info("Received request to reset_password_token.");
+
+        userService.resetPasswordByToken(resetPasswordByTokenRequest.getNewPassword(), authorizationHeader);
+
+        logger.info("successfully reset_password_token.");
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("{email}/send_reset_password")
+    public ResponseEntity<Void> sendResetPassword(@PathVariable String email) {
+
+        logger.info("Received request to send_reset_password user: {}", email);
+
+        userService.sendResetPassword(email);
+
+        logger.info("successfully send_reset_password user: {}", email);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @GetMapping("{userId}/dashboard")
     public ResponseEntity<PageDashboardResponse> getDashboard(@PathVariable Long userId, @PageableDefault Pageable pageable) {
 

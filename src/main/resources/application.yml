@@ -14,9 +14,22 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: agendahub.service@gmail.com
+    password: yyja eraf opiw vark
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 form:
   base:
-    url : http://localhost:3000/
+    url: http://localhost:3000/
 
 websocket:
   endpoint:

@@ -5,6 +5,7 @@ import com.anamnesys.repository.PatientRepository;
 import com.anamnesys.repository.model.PatientModel;
 import com.anamnesys.repository.model.RecordSendModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class PatientService {
     @Autowired
     UserService userService;
     @Autowired
+    @Lazy
     RecordService recordService;
 
     public void createPatient(PatientModel model) {

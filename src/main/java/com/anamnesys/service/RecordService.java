@@ -1,5 +1,6 @@
 package com.anamnesys.service;
 
+import com.anamnesys.controller.dto.LinkDTO;
 import com.anamnesys.controller.dto.RecordResponse;
 import com.anamnesys.controller.dto.TermResponse;
 import com.anamnesys.domain.STATUS_RECORD;
@@ -11,14 +12,20 @@ import com.anamnesys.repository.RecordRepository;
 import com.anamnesys.repository.RecordSendRepository;
 import com.anamnesys.repository.TermRepository;
 import com.anamnesys.repository.model.*;
+import com.anamnesys.util.Constants;
 import com.anamnesys.util.RecordMapper;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.MessageFormat;
 import java.util.List;
+
+import static com.anamnesys.util.Constants.EMAIL_TEMPLATE;
 
 @Service
 public class RecordService {
@@ -33,7 +40,12 @@ public class RecordService {
     AnswerRepository answerRepository;
     @Autowired
     TermRepository termRepository;
-
+    @Autowired
+    EmailService emailService;
+    @Autowired
+    PatientService patientService;
+    @Value("${form.base.url}")
+    String formBaseUrl;
 
     public void createRecord(RecordModel model) {
         validatedUser(model.getUserId());
@@ -75,7 +87,7 @@ public class RecordService {
 
     public RecordResponse getFormData(String linkId) {
         try {
-            TermModel termModel = null;
+            TermModel termModel;
             TermResponse termResponse = null;
 
             RecordSendModel recordSendModel = recordSendRepository.getReferenceById(linkId);
@@ -83,8 +95,8 @@ public class RecordService {
                 throw new AnswerExistingException("Ficha já enviada.");
             }
             RecordModel recordById = this.getRecordById(recordSendModel.getRecordId(), recordSendModel.getUserId());
-            if(recordById.getTermId() != null){
-                termModel  = termRepository.getReferenceById(recordById.getTermId());
+            if (recordById.getTermId() != null) {
+                termModel = termRepository.getReferenceById(recordById.getTermId());
                 termResponse = new TermResponse();
                 termResponse.setId(termModel.getId());
                 termResponse.setTerm(termModel.getTerm());
@@ -100,12 +112,24 @@ public class RecordService {
         }
     }
 
-    public void sendRecord(SendRecord sendRecord) {
-
+    public LinkDTO sendRecord(SendRecord sendRecord) {
         try {
-            validateSendRecord(sendRecord);
+            String linkId = sendRecord.getUserId() + "/record/" + sendRecord.getId();
+            String formUrl = formBaseUrl + linkId;
+
+            if (sendRecord.getIsSendMail()) {
+                PatientModel patient = patientService.getPatientById(sendRecord.getClientId());
+                String recordNameById = getRecordNameById(sendRecord.getRecordId());
+                String emailSubject = MessageFormat.format(Constants.MESSAGE_SEND_SUBJECT, recordNameById);
+                String emailBody = EMAIL_TEMPLATE.replace("{name}", patient.getName())
+                        .replace("{formUrl}", formUrl);
+                emailService.enviarEmail(patient.getEmail(), emailSubject, emailBody);
+            }
+
             RecordSendModel sendModel = RecordMapper.toSendModel(sendRecord);
             recordSendRepository.save(sendModel);
+
+            return new LinkDTO(formUrl);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -128,9 +152,6 @@ public class RecordService {
 
     public List<RecordSendModel> getSendRecordsByUserIdPatientId(Long clientId, Long userId) {
         return recordSendRepository.findByUserIdAndClientId(userId, clientId);
-    }
-
-    private void validateSendRecord(SendRecord sendRecord) {
     }
 
     private void setValues(RecordModel model, RecordModel modelDataBase) {
@@ -170,5 +191,10 @@ public class RecordService {
 
     private void validatedUser(Long userId) {
         userService.getUser(userId);
+    }
+
+    private String getRecordNameById(Long id) {
+        return repository.findNameById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Registro não encontrado"));
     }
 }
