@@ -60,8 +60,24 @@ jobs:
             DB_USERNAME="${{ secrets.DB_USERNAME_QA }}"
             DB_PASSWORD="${{ secrets.DB_PASSWORD_QA }}"
           fi
-
-          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_NAME }} --force-new-deployment --region ${{ secrets.AWS_REGION }} --overrides "{\"containerOverrides\":[{\"name\":\"anamnesys-api-prod\",\"environment\":[{\"name\":\"SPRING_DATASOURCE_URL\",\"value\":\"jdbc:mysql://$RDS_ENDPOINT:3306/anamnesys\"},{\"name\":\"SPRING_DATASOURCE_USERNAME\",\"value\":\"$DB_USERNAME\"},{\"name\":\"SPRING_DATASOURCE_PASSWORD\",\"value\":\"$DB_PASSWORD\"},{\"name\":\"SPRING_PROFILES_ACTIVE\",\"value\":\"$PROFILE\"}]}]}"
+          
+          aws ecs update-service \
+            --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
+            --service ${{ secrets.ECS_SERVICE_NAME }} \
+            --force-new-deployment \
+            --region ${{ secrets.AWS_REGION }} \
+            --overrides '{
+              "containerOverrides": [{
+                "name": "anamnesys_api",  # Nome correto do contêiner
+                "environment": [
+                  {"name": "SPRING_DATASOURCE_URL", "value": "jdbc:mysql://'"$RDS_ENDPOINT"':3306/anamnesys"},
+                  {"name": "SPRING_DATASOURCE_USERNAME", "value": "'"$DB_USERNAME"'"},
+                  {"name": "SPRING_DATASOURCE_PASSWORD", "value": "'"$DB_PASSWORD"'"},
+                  {"name": "SPRING_PROFILES_ACTIVE", "value": "'"$PROFILE"'"}
+                ]
+              }]
+            }'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
