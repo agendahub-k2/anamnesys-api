@@ -7,7 +7,7 @@ WORKDIR /app
 # Copiar o arquivo Gradle e as dependências de construção
 COPY gradlew .
 COPY gradle gradle
-COPY build.gradle .
+COPY build.gradle.kts .
 COPY settings.gradle.kts .
 
 # Copiar o código-fonte do projeto
