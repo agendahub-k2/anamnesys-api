@@ -61,27 +61,17 @@ jobs:
             DB_PASSWORD="${{ secrets.DB_PASSWORD_QA }}"
           fi
 
-          # Construir o JSON de overrides dinamicamente
-          ENV_VARS=$(cat <<EOF
-          {
+          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_NAME }} --force-new-deployment --region ${{ secrets.AWS_REGION }} --overrides '{
             "containerOverrides": [{
-              "name": "anamnesys",  # Nome do container conforme configurado na Task Definition
+              "name": "anamnesys-api-prod",  # Nome do container conforme configurado na Task Definition
               "environment": [
-                {"name": "SPRING_DATASOURCE_URL", "value": "jdbc:mysql://$RDS_ENDPOINT:3306/anamnesys"},
-                {"name": "SPRING_DATASOURCE_USERNAME", "value": "$DB_USERNAME"},
-                {"name": "SPRING_DATASOURCE_PASSWORD", "value": "$DB_PASSWORD"},
-                {"name": "SPRING_PROFILES_ACTIVE", "value": "$PROFILE"}
+                {"name": "SPRING_DATASOURCE_URL", "value": "jdbc:mysql://'"$RDS_ENDPOINT"':3306/anamnesys"},
+                {"name": "SPRING_DATASOURCE_USERNAME", "value": "'"$DB_USERNAME"'"},
+                {"name": "SPRING_DATASOURCE_PASSWORD", "value": "'"$DB_PASSWORD"'"},
+                {"name": "SPRING_PROFILES_ACTIVE", "value": "'"$PROFILE"'"}
               ]
             }]
-          }
-          EOF
-          )
-
-          echo "Atualizando serviço ECS com os seguintes parâmetros de environment:"
-          echo "$ENV_VARS"
-
-          # Executando o comando de atualização do ECS
-          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_NAME }} --force-new-deployment --region ${{ secrets.AWS_REGION }} --overrides "$ENV_VARS"
+          }'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
