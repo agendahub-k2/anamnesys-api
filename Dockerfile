@@ -8,7 +8,7 @@ WORKDIR /app
 COPY gradlew .
 COPY gradle gradle
 COPY build.gradle .
-COPY settings.gradle .
+COPY settings.gradle.kts .
 
 # Copiar o código-fonte do projeto
 COPY src src
