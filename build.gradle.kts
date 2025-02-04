@@ -39,6 +39,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security:3.3.5")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-mail:3.4.1")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
 }
 

@@ -34,3 +34,9 @@ form:
 websocket:
   endpoint:
     url: ws://localhost:8080/ws
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
