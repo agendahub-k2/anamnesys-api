@@ -26,13 +26,11 @@ jobs:
         run: aws --version
 
       - name: Configure AWS CLI
-        run: |
-          mkdir -p ~/.aws
-          echo "[default]" > ~/.aws/config
-          echo "region = ${{ secrets.AWS_REGION }}" >> ~/.aws/config
-          echo "[default]" > ~/.aws/credentials
-          echo "aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
-          echo "aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Print environment variables
         run: |
@@ -47,37 +45,18 @@ jobs:
           docker tag anamnesys_api:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
 
+      - name: Register new task definition
+        run: |
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition anamnesys-api-prod --query taskDefinition.containerDefinitions)
+          NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq '.[0].image="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest"')
+          echo "{"family": "anamnesys-api-prod", "containerDefinitions": [$NEW_TASK_DEFINITION]}" > new-task-def.json
+          aws ecs register-task-definition --cli-input-json file://new-task-def.json
+
       - name: Deploy to ECS
         run: |
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            PROFILE="prod"
-            RDS_ENDPOINT="${{ secrets.RDS_ENDPOINT_PROD }}"
-            DB_USERNAME="${{ secrets.DB_USERNAME_PROD }}"
-            DB_PASSWORD="${{ secrets.DB_PASSWORD_PROD }}"
-          else
-            PROFILE="qa"
-            RDS_ENDPOINT="${{ secrets.RDS_ENDPOINT_QA }}"
-            DB_USERNAME="${{ secrets.DB_USERNAME_QA }}"
-            DB_PASSWORD="${{ secrets.DB_PASSWORD_QA }}"
-          fi
-          
           aws ecs update-service \
             --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
             --service ${{ secrets.ECS_SERVICE_NAME }} \
+            --task-definition anamnesys-api-prod \
             --force-new-deployment \
-            --region ${{ secrets.AWS_REGION }} \
-            --overrides '{
-              "containerOverrides": [{
-                "name": "anamnesys_api",  # Nome correto do contêiner
-                "environment": [
-                  {"name": "SPRING_DATASOURCE_URL", "value": "jdbc:mysql://'"$RDS_ENDPOINT"':3306/anamnesys"},
-                  {"name": "SPRING_DATASOURCE_USERNAME", "value": "'"$DB_USERNAME"'"},
-                  {"name": "SPRING_DATASOURCE_PASSWORD", "value": "'"$DB_PASSWORD"'"},
-                  {"name": "SPRING_PROFILES_ACTIVE", "value": "'"$PROFILE"'"}
-                ]
-              }]
-            }'
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
+            --region ${{ secrets.AWS_REGION }}
