@@ -45,20 +45,6 @@ jobs:
           docker tag anamnesys_api:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
 
-      - name: Register new task definition
-        run: |
-          aws ecs describe-task-definition --task-definition anamnesys-api-prod --query taskDefinition > task-def.json
-          jq 'del(.taskDefinitionArn, .status, .requiresAttributes, .compatibilities, .revision)' task-def.json > new-task-def.json
-          jq --arg IMAGE "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest" \
-            '.containerDefinitions[0].image = $IMAGE' new-task-def.json > final-task-def.json
-          aws ecs register-task-definition --cli-input-json file://final-task-def.json
-
-      - name: Get latest task definition revision
-        id: get-task-def
-        run: |
-          REVISION=$(aws ecs describe-task-definition --task-definition anamnesys-api-prod --query "taskDefinition.revision" --output text)
-          echo "REVISION=$REVISION" >> $GITHUB_ENV
-
       - name: Deploy to ECS
         run: |
           aws ecs update-service \
