@@ -16,7 +16,11 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000")  // Frontend
+                .allowedOrigins(
+                        "http://localhost:3000", // Para desenvolvimento local
+                        "https://flowforms.com.br", // Domínio principal em produção
+                        "https://www.flowforms.com.br" // Subdomínio www
+                )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With")
                 .allowCredentials(false); // Ou true, dependendo das suas necessidades
