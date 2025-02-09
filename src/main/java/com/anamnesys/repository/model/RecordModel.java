@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "RECORD")
+@Table(name = "RECORD", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "user_id"}))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,7 +21,7 @@ public class RecordModel {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "name", unique = true, nullable = false, length = 100)
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
 
     @ManyToOne(cascade = CascadeType.ALL)
