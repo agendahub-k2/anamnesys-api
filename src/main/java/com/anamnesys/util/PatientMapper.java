@@ -11,7 +11,7 @@ public class PatientMapper {
         patientModel.setId(patientId);
         patientModel.setName(request.getName());
         patientModel.setPhone(request.getPhone());
-        patientModel.setEmail(request.getEmail());
+        patientModel.setEmail(request.getEmail().toLowerCase());
         patientModel.setUserId(userId);
         patientModel.setBirth(request.getBirth());
         return patientModel;

@@ -13,7 +13,7 @@ public class UserMapper {
         UserModel userModel = new UserModel();
         userModel.setCategory(request.getCategory());
         userModel.setName(request.getName());
-        userModel.setEmail(request.getEmail());
+        userModel.setEmail(request.getEmail().toLowerCase());
         userModel.setPassword(request.getPassword());
         userModel.setPhone(request.getPhone());
         userModel.setId(id);
@@ -24,7 +24,7 @@ public class UserMapper {
     public static UserModel toUpdateModel(UserUpdatedRequest request, Long id) {
         UserModel userModel = new UserModel();
         userModel.setName(request.getName());
-        userModel.setEmail(request.getEmail());
+        userModel.setEmail(request.getEmail().toLowerCase());
         userModel.setPhone(request.getPhone());
         userModel.setId(id);
         return userModel;
