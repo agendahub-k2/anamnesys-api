@@ -7,5 +7,6 @@ public enum STATUS_RECORD {
     ENVIADO,
     ERRO,
     RECEBIDO,
+    PREENCHIDO,
     CANCELADO;
 }

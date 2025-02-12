@@ -14,7 +14,6 @@ import com.anamnesys.repository.TermRepository;
 import com.anamnesys.repository.model.*;
 import com.anamnesys.util.Constants;
 import com.anamnesys.util.RecordMapper;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -22,9 +21,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.MessageFormat;
 import java.util.List;
 
+import static com.anamnesys.util.Constants.ANSWER_RECEIVED;
 import static com.anamnesys.util.Constants.EMAIL_TEMPLATE;
 
 @Service
@@ -46,6 +45,8 @@ public class RecordService {
     PatientService patientService;
     @Value("${form.base.url}")
     String formBaseUrl;
+    @Autowired
+    WebSocketService webSocketService;
 
     public void createRecord(RecordModel model) {
         validatedUser(model.getUserId());
@@ -76,7 +77,7 @@ public class RecordService {
 
     public RecordModel getRecordById(Long recordId, Long userId) {
         validatedUser(userId);
-        return repository.findById(recordId).orElseThrow(RecordNotFoundException::new);
+        return repository.findByIdAndUserId(recordId, userId).orElseThrow(RecordNotFoundException::new);
     }
 
     public List<RecordModel> getRecordByName(String name, Long userId) {
@@ -84,29 +85,28 @@ public class RecordService {
         return repository.findByUserIdAndNameContaining(userId, name);
     }
 
+    public RecordResponse formFiller(Long recordId, Long userId) {
+        try {
+            return getRecordResponse(recordId, userId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private RecordResponse getRecordResponse(Long recordId, Long userId) {
+        RecordModel recordById = this.getRecordById(recordId, userId);
+        RecordResponse recordResponse = RecordMapper.toRecordResponse(recordById);
+        recordResponse.setTerm(getTermResponse(recordById));
+        return recordResponse;
+    }
 
     public RecordResponse getFormData(String linkId) {
         try {
-            TermModel termModel;
-            TermResponse termResponse = null;
-
             RecordSendModel recordSendModel = recordSendRepository.getReferenceById(linkId);
             if (recordSendModel.getStatus() == STATUS_RECORD.RECEBIDO) {
                 throw new AnswerExistingException("Ficha já enviada.");
             }
-            RecordModel recordById = this.getRecordById(recordSendModel.getRecordId(), recordSendModel.getUserId());
-            if (recordById.getTermId() != null) {
-                termModel = termRepository.getReferenceById(recordById.getTermId());
-                termResponse = new TermResponse();
-                termResponse.setId(termModel.getId());
-                termResponse.setTerm(termModel.getTerm());
-                termResponse.setName(termModel.getName());
-            }
-
-            RecordResponse recordResponse = RecordMapper.toRecordResponse(recordById);
-            recordResponse.setTerm(termResponse);
-
-            return recordResponse;
+            return getRecordResponse(recordSendModel.getRecordId(), recordSendModel.getUserId());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -119,8 +119,7 @@ public class RecordService {
 
             if (sendRecord.getIsSendMail()) {
                 PatientModel patient = patientService.getPatientById(sendRecord.getClientId());
-                String recordNameById = getRecordNameById(sendRecord.getRecordId());
-                String emailSubject = MessageFormat.format(Constants.MESSAGE_SEND_SUBJECT, recordNameById);
+                String emailSubject = Constants.MESSAGE_SEND_SUBJECT;
                 String emailBody = EMAIL_TEMPLATE.replace("{name}", patient.getName())
                         .replace("{formUrl}", formUrl);
                 emailService.enviarEmail(patient.getEmail(), emailSubject, emailBody);
@@ -135,7 +134,34 @@ public class RecordService {
         }
     }
 
-    public void saveAnswer(String linkId, String formResponses) {
+    public void saveAnswerFormFiller(Long recordId,
+                                     Long userId,
+                                     Long clientId,
+                                     String formResponses) {
+
+        try {
+            SendRecord sendRecord = new SendRecord();
+            sendRecord.setReturnDt(null);
+            sendRecord.setClientId(clientId);
+            sendRecord.setDateExpiration(null);
+            sendRecord.setIsSendMail(false);
+            sendRecord.setIsSendWhatsapp(false);
+            sendRecord.setUserId(userId);
+            sendRecord.setRecordId(recordId);
+            sendRecord.setStatus(STATUS_RECORD.PREENCHIDO);
+            sendRecord(sendRecord);
+
+            AnswerModel answerModel = new AnswerModel();
+            answerModel.setId(sendRecord.getId().toString());
+            answerModel.setAnswer(formResponses);
+            answerRepository.save(answerModel);
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public void saveAnswer(String linkId, String formResponses, Long userId) {
         AnswerModel answerModel = new AnswerModel();
         answerModel.setId(linkId);
         answerModel.setAnswer(formResponses);
@@ -148,10 +174,12 @@ public class RecordService {
 
         recordSendRepository.updateStatusAndUpdateAt(linkId, STATUS_RECORD.RECEBIDO);
         answerRepository.save(answerModel);
+
+        webSocketService.sendNotification(ANSWER_RECEIVED, userId.toString(), "birth_topic");
     }
 
     public List<RecordSendModel> getSendRecordsByUserIdPatientId(Long clientId, Long userId) {
-        return recordSendRepository.findByUserIdAndClientId(userId, clientId);
+        return recordSendRepository.findByUserIdAndClientIdOrderByCreatedAtDesc(userId, clientId);
     }
 
     private void setValues(RecordModel model, RecordModel modelDataBase) {
@@ -193,8 +221,17 @@ public class RecordService {
         userService.getUser(userId);
     }
 
-    private String getRecordNameById(Long id) {
-        return repository.findNameById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Registro não encontrado"));
+    private TermResponse getTermResponse(RecordModel recordById) {
+
+        TermModel termModel;
+        TermResponse termResponse = null;
+        if (recordById.getTermId() != null) {
+            termModel = termRepository.getReferenceById(recordById.getTermId());
+            termResponse = new TermResponse();
+            termResponse.setId(termModel.getId());
+            termResponse.setTerm(termModel.getTerm());
+            termResponse.setName(termModel.getName());
+        }
+        return termResponse;
     }
 }

@@ -75,18 +75,6 @@ public class RecordController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{recordId}")
-    public ResponseEntity<RecordResponse> getRecordById(
-            @PathVariable Long userId,
-            @PathVariable Long recordId) {
-
-        logger.info("Received request get record by id: {} {}", userId, recordId);
-        RecordModel record = recordService.getRecordById(recordId, userId);
-
-        logger.info("Process get record by id: {} {}", userId, recordId);
-        return ResponseEntity.ok(RecordMapper.toRecordResponse(record));
-    }
-
     @GetMapping("find")
     public ResponseEntity<List<RecordResponse>> getRecordByName(
             @PathVariable Long userId,
@@ -103,13 +91,24 @@ public class RecordController {
     }
 
     @PostMapping("/send")
-    public ResponseEntity<LinkDTO> updateRecord(@PathVariable Long userId, @Valid @RequestBody SendRecordRequest sendRecordRequest) throws JsonProcessingException {
+    public ResponseEntity<LinkDTO> sendRecord(@PathVariable Long userId, @Valid @RequestBody SendRecordRequest sendRecordRequest) throws JsonProcessingException {
 
         logger.info("Received request send record: {} {}", userId, sendRecordRequest);
         SendRecord sendRecord = RecordMapper.toSendRecord(sendRecordRequest, userId);
         LinkDTO linkDTO = recordService.sendRecord(sendRecord);
         logger.info("Record send successfully with ID: {} ", sendRecord.getId());
         return ResponseEntity.ok(linkDTO);
+    }
+
+    @GetMapping("formFiller/{recordId}")
+    public ResponseEntity<RecordResponse> formFiller(
+            @PathVariable Long userId,
+            @PathVariable Long recordId) {
+
+        logger.info("Received request formFiller user and record: {} {}", userId, recordId);
+        RecordResponse recordResponse = recordService.formFiller(recordId, userId);
+        logger.info("Process formFiller user and record: {} {}", userId, recordId);
+        return ResponseEntity.ok(recordResponse);
     }
 
     @GetMapping("/form-data/{linkId}")
@@ -120,12 +119,25 @@ public class RecordController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("formFiller/submit-form/{recordId}/clientId/{clientId}")
+    public ResponseEntity<Void> submitFormFiller(@PathVariable Long recordId,
+                                                 @PathVariable Long userId,
+                                                 @PathVariable Long clientId,
+                                                 @RequestBody String formResponses) {
+
+        logger.info("Received submit formfiller - recordId {} ", recordId);
+        recordService.saveAnswerFormFiller(recordId, userId, clientId, formResponses);
+        logger.info("Answer saved formfiller - {} ", recordId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
 
     @PostMapping("/submit-form/{linkId}")
-    public ResponseEntity<Void> submitForm(@PathVariable String linkId, @RequestBody String formResponses) {
+    public ResponseEntity<Void> submitForm(@PathVariable String linkId, @RequestBody String formResponses,
+                                           @PathVariable Long userId) {
 
         logger.info("Received answer save: {}", linkId);
-        recordService.saveAnswer(linkId, formResponses);
+        recordService.saveAnswer(linkId, formResponses, userId);
         logger.info("Answer saved successfully: {}", linkId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
