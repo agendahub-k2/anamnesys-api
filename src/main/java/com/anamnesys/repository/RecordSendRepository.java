@@ -14,7 +14,7 @@ import java.util.List;
 
 
 public interface RecordSendRepository extends JpaRepository<RecordSendModel, String> {
-    List<RecordSendModel> findByUserIdAndClientId(Long userId, Long clientId);
+    List<RecordSendModel> findByUserIdAndClientIdOrderByCreatedAtDesc(Long userId, Long clientId);
 
     @Query(value = "SELECT sr.status, sr.client_id, r.name, sr.created_at, sr.email, sr.whatsapp, p.name, sr.id, sr.return_dt " +
             "FROM send_record sr " +

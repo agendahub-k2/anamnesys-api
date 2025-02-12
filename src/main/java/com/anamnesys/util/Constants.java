@@ -6,6 +6,7 @@ public class Constants {
     public static final String RECORD_NOT_FOUND = "Ficha não encontrada.";
     public static final String TEMPLATE_NOT_FOUND = "Template não encontrado.";
     public static final String ANSWER_NOT_FOUND = "Respostas não encontrada.";
+    public static final String ANSWER_RECEIVED = "Ficha recebida.";
     public static final String PASSWORD_EMAIL_INVALID = "Email ou senha inválida.";
     public static final String UNAUTHORIZED = "Acesso negado: usuário não autorizado a acessar este recurso.";
     public static final String MESSAGE_SEND_SUBJECT = "FlowForms - Redefinir Senha.";

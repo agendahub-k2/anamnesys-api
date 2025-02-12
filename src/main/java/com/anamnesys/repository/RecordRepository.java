@@ -23,4 +23,6 @@ public interface RecordRepository extends JpaRepository<RecordModel, Long> {
 
     @Query("SELECT r.name FROM RecordModel r WHERE r.id = :id")
     Optional<String> findNameById(@Param("id") Long id);
+
+    Optional<RecordModel> findByIdAndUserId(Long recordId, Long userId);
 }
