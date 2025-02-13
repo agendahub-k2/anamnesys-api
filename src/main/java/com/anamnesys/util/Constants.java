@@ -22,7 +22,17 @@ public class Constants {
                     "        .email-body { padding: 20px; font-size: 16px; color: #333333; line-height: 1.5; }" +
                     "        .email-body p { margin: 0 0 15px; }" +
                     "        .email-footer { background-color: #f4f4f9; padding: 15px; text-align: center; font-size: 14px; color: #999999; }" +
-                    "        .email-button { display: inline-block; padding: 10px 20px; background-color: #4f46e5; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 20px; }" +
+                    "        .email-button { " +
+                    "            display: inline-block; " +
+                    "            padding: 10px 20px; " +
+                    "            background-color: #4f46e5; " +
+                    "            color: #ffffff !important; " +  // Força a cor do texto
+                    "            text-decoration: none; " +
+                    "            border-radius: 4px; " +
+                    "            font-weight: bold; " +
+                    "            margin-top: 20px; " +
+                    "            text-align: center;" +
+                    "        }" +
                     "        .email-button:hover { background-color: #4338ca; }" +
                     "    </style>" +
                     "</head>" +
@@ -33,7 +43,7 @@ public class Constants {
                     "            <p>Olá, {name},</p>" +
                     "            <p>Esperamos que esteja bem!</p>" +
                     "            <p>Você recebeu um novo formulário para preencher. Clique no botão abaixo para acessá-lo:</p>" +
-                    "            <a href='{formUrl}' class='email-button'>Acessar Formulário</a>" +
+                    "            <a href='{formUrl}' class='email-button' style='color: #ffffff !important;'>Acessar Formulário</a>" + // Aplicando cor direto na tag
                     "            <p>Se você não solicitou este e-mail, pode ignorá-lo.</p>" +
                     "        </div>" +
                     "        <div class='email-footer'>" +
@@ -42,6 +52,7 @@ public class Constants {
                     "    </div>" +
                     "</body>" +
                     "</html>";
+
 
     public static final String EMAIL_TEMPLATE_RESET =
             "<!DOCTYPE html>" +
