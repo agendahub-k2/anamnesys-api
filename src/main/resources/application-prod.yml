@@ -29,7 +29,7 @@ spring:
 
 form:
   base:
-    url: http://flowforms.com.br/
+    url: https://flowforms.com.br/
 
 websocket:
   endpoint:
