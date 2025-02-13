@@ -33,15 +33,10 @@ form:
 
 websocket:
   endpoint:
-    url: ws://https://api.flowforms.com.br/ws
+    url: ws://api.flowforms.com.br/ws
 
 management:
   endpoints:
     web:
       exposure:
         include: health
-  endpoint:
-    health:
-      show-details: always
-  security:
-    enabled: false
