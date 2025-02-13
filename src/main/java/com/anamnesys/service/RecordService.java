@@ -115,6 +115,7 @@ public class RecordService {
     public LinkDTO sendRecord(SendRecord sendRecord) {
         try {
             String linkId = sendRecord.getUserId() + "/record/" + sendRecord.getId();
+            System.out.println("formBaseUrl: "+formBaseUrl);
             String formUrl = formBaseUrl + linkId;
 
             if (sendRecord.getIsSendMail()) {
