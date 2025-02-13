@@ -9,7 +9,8 @@ public class Constants {
     public static final String ANSWER_RECEIVED = "Ficha recebida.";
     public static final String PASSWORD_EMAIL_INVALID = "Email ou senha inválida.";
     public static final String UNAUTHORIZED = "Acesso negado: usuário não autorizado a acessar este recurso.";
-    public static final String MESSAGE_SEND_SUBJECT = "FlowForms - Redefinir Senha.";
+    public static final String MESSAGE_RESET = "FlowForms - Redefinir Senha.";
+    public static final String MESSAGE_SEND_SUBJECT= "FlowForms - Novo formulário.";
     public static final String EMAIL_TEMPLATE =
             "<!DOCTYPE html>" +
                     "<html>" +

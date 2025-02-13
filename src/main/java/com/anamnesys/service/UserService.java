@@ -176,7 +176,7 @@ public class UserService {
                 .replace("{0}", user.getName())
                 .replace("{1}", link);
 
-        emailService.enviarEmail(user.getEmail(), Constants.MESSAGE_SEND_SUBJECT, emailBody);
+        emailService.enviarEmail(user.getEmail(), Constants.MESSAGE_RESET, emailBody);
     }
 
 
