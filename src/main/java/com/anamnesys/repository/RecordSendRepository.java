@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -29,5 +31,8 @@ public interface RecordSendRepository extends JpaRepository<RecordSendModel, Str
     @Transactional
     @Query("UPDATE RecordSendModel r SET r.status = :status, r.updateAt = CURRENT_TIMESTAMP WHERE r.id = :id")
     int updateStatusAndUpdateAt(@Param("id") String id, @Param("status") STATUS_RECORD status);
+
+    List<RecordSendModel> findByReturnDtBetween(LocalDateTime start, LocalDateTime end);
+
 
 }

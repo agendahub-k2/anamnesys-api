@@ -58,7 +58,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 // Extrai o userId e remove a sessão
                 String userId = extractUserIdFromSession(session);
                 if (userId != null) {
-                    webSocketService.removeSession(userId);
+                    webSocketService.removeSession(userId, session);
                     System.out.println("Conexão encerrada para userId: " + userId);
                 }
             }
