@@ -16,13 +16,27 @@ public class WebSocketService {
 
     // Adiciona uma nova sessão para um usuário específico
     public void addSession(String userId, WebSocketSession session) {
+        WebSocketSession existingSession = userSessions.get(userId);
+
+        if (existingSession != null && existingSession.isOpen()) {
+            System.out.println("Usuário " + userId + " já possui uma sessão ativa.");
+            return;
+        }
+
         userSessions.put(userId, session);
+        System.out.println("Nova sessão adicionada para usuário " + userId);
     }
 
+
     // Remove a sessão quando ela é fechada
-    public void removeSession(String userId) {
-        userSessions.remove(userId);
+    public void removeSession(String userId, WebSocketSession session) {
+        WebSocketSession existingSession = userSessions.get(userId);
+        if (existingSession != null && existingSession.equals(session)) {
+            userSessions.remove(userId, session);
+            System.out.println("Sessão removida para usuário " + userId);
+        }
     }
+
 
     // Envia uma notificação para um usuário específico
     public void sendNotification(String message, String userId, String topic) {
