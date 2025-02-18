@@ -53,7 +53,7 @@ public class JobNotifications {
         }
     }
 
-    @Scheduled(cron = "0 */1 * * * ?")
+    @Scheduled(cron = "0 0 10,15 * * ?")
     public void enviarNotificaçãoClientesComDataRetornoAmanha() {
         logger.info("Initiated enviarNotificaçãoClientesComDataRetorno");
         try {
@@ -71,7 +71,7 @@ public class JobNotifications {
         }
     }
 
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 0 8 * * ?, 0 30 13 * * ?")
     public void enviarNotificaçãoClientesComDataRetornoHoje() {
         logger.info("Initiated enviarNotificaçãoClientesComDataRetornoHoje");
         try {
