@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class JobNotifications {
@@ -31,7 +30,7 @@ public class JobNotifications {
         this.webSocketService = webSocketService;
     }
 
-    @Scheduled(cron = "0 0 9,14 * * ?")
+    @Scheduled(cron = "0 0 10,16 * * ?")
     public void verificarAniversariantes() {
         logger.info("Initiated NotificacaoAniversarioJob");
 
@@ -54,7 +53,7 @@ public class JobNotifications {
     }
 
     @Scheduled(cron = "0 0 10,15 * * ?")
-    public void enviarNotificaçãoClientesComDataRetornoAmanha() {
+    public void enviarNotificacaoClientesComDataRetornoAmanha() {
         logger.info("Initiated enviarNotificaçãoClientesComDataRetorno");
         try {
             LocalDateTime start = LocalDateTime.now().plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
@@ -71,8 +70,8 @@ public class JobNotifications {
         }
     }
 
-    @Scheduled(cron = "0 0 8 * * ?, 0 30 13 * * ?")
-    public void enviarNotificaçãoClientesComDataRetornoHoje() {
+    @Scheduled(cron = "0 0 9,14 * * ?")
+    public void enviarNotificacaoClientesComDataRetornoHoje() {
         logger.info("Initiated enviarNotificaçãoClientesComDataRetornoHoje");
         try {
             LocalDateTime start = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
