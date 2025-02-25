@@ -54,18 +54,32 @@ public class PatientController {
     }
 
     @GetMapping("/find")
-    public ResponseEntity<Page<PatientResponse>> getPatientsByName(
+    public ResponseEntity<Page<PatientResponse>> getPatients(
             @PathVariable Long userId,
-            @RequestParam String name,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String email,
             @PageableDefault Pageable pageable) {
 
-        logger.info("Received request get all patients for userId and name: {} {}", userId, name);
-        Page<PatientModel> records = patientService.getAllPatientsByUserIdAndName(userId, name, pageable);
+        logger.info("Received request get patients for userId: {} with name: {} and email: {}", userId, name, email);
+        Page<PatientModel> records;
+
+        if (name != null && !name.isEmpty()) {
+            logger.info("Searching by name: {}", name);
+            records = patientService.getAllPatientsByUserIdAndName(userId, name, pageable);
+        }
+        else if (email != null && !email.isEmpty()) {
+            logger.info("Searching by email: {}", email);
+            records = patientService.getPatientByUserIdAndEmail(userId, email, pageable);
+        } else {
+            logger.error("Neither name nor email provided.");
+            return ResponseEntity.badRequest().build();
+        }
 
         Page<PatientResponse> response = records.map(PatientMapper::toUserResponse);
-        logger.info("Retrieved {} patients for userId: {} and name: {}", response.getTotalElements(), userId, name);
+        logger.info("Retrieved {} patients for userId: {}", response.getTotalElements(), userId);
         return ResponseEntity.ok(response);
     }
+
 
     @GetMapping
     public ResponseEntity<Page<PatientResponse>> getPatientsByUserId(
