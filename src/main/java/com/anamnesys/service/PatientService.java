@@ -49,6 +49,10 @@ public class PatientService {
         return patientRepository.findByUserIdAndNameContainingIgnoreCase(userId, name, pageable);
     }
 
+    public Page<PatientModel> getPatientByUserIdAndEmail(Long userId, String name, Pageable pageable) {
+        return patientRepository.findByUserIdAndEmailIgnoreCase(userId, name, pageable);
+    }
+
     public List<RecordSendModel> getRecordsByUserIdPatientId(Long patientId, Long userId) {
        return recordService.getSendRecordsByUserIdPatientId(patientId, userId);
     }
