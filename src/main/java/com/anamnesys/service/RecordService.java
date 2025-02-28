@@ -49,9 +49,10 @@ public class RecordService {
     WebSocketService webSocketService;
 
     public void createRecord(RecordModel model) {
-        validatedUser(model.getUserId());
+        UserModel userModel = validatedAndGetUser(model.getUserId());
         validatedRecord(model);
         setOptions(model);
+        setCategorySegment(userModel.getCategory(), model);
         repository.save(model);
     }
 
@@ -62,8 +63,8 @@ public class RecordService {
 
     public RecordModel updateRecord(RecordModel model) {
 
-        validatedUser(model.getUserId());
-
+        UserModel userModel = validatedAndGetUser(model.getUserId());
+        setCategorySegment(userModel.getCategory(), model);
         RecordModel modelDataBase = repository.findById(model.getId()).orElseThrow(RecordNotFoundException::new);
         setValues(model, modelDataBase);
 
@@ -76,12 +77,12 @@ public class RecordService {
     }
 
     public RecordModel getRecordById(Long recordId, Long userId) {
-        validatedUser(userId);
+        validatedAndGetUser(userId);
         return repository.findByIdAndUserId(recordId, userId).orElseThrow(RecordNotFoundException::new);
     }
 
     public List<RecordModel> getRecordByName(String name, Long userId) {
-        validatedUser(userId);
+        validatedAndGetUser(userId);
         return repository.findByUserIdAndNameContaining(userId, name);
     }
 
@@ -218,8 +219,8 @@ public class RecordService {
         });
     }
 
-    private void validatedUser(Long userId) {
-        userService.getUser(userId);
+    private UserModel validatedAndGetUser(Long userId) {
+        return userService.getUser(userId);
     }
 
     private TermResponse getTermResponse(RecordModel recordById) {
@@ -234,5 +235,9 @@ public class RecordService {
             termResponse.setName(termModel.getName());
         }
         return termResponse;
+    }
+
+    private void setCategorySegment(String category, RecordModel model) {
+        model.getSegment().setCategory(category);
     }
 }

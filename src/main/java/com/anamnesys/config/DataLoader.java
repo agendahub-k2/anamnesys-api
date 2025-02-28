@@ -11,9 +11,10 @@ import com.anamnesys.repository.model.TermModel;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -25,114 +26,195 @@ public class DataLoader {
             + "Compreendo que este documento não substitui uma consulta médica ou de um profissional especializado. "
             + "Autorizo o uso dos dados para fins exclusivamente relacionados ao atendimento e aceito.";
 
+    public static final String TERMO_DE_COMPROMISSO_TATUAGEM = "Declaro que estou ciente dos riscos associados ao procedimento de tatuagem...";
+
     @Bean
     public CommandLineRunner loadData(SegmentRepository segmentRepository,
                                       TemplateRepository templateRepository,
                                       QuestionRepository questionRepository,
                                       TermRepository termRepository) {
 
-        TermModel term = new TermModel(null, "Termo padrão anamnese" ,TERMO_DE_COMPROMISSO, null, null, null);
+        return args -> {
+            switch ((int) templateRepository.count()) {
+                case 0:
+                    saveTemplateMedicaHistorico(templateRepository, termRepository, segmentRepository);
+                    saveTemplateTatuadorModel(templateRepository, termRepository, segmentRepository);
+                    saveTemplateTatuadoresModel(templateRepository, segmentRepository);
+                    saveTemplateTatuadorCompleta(templateRepository, segmentRepository);
+                    break;
+                case 1:
+                    saveTemplateTatuadorModel(templateRepository, termRepository, segmentRepository);
+                    saveTemplateTatuadoresModel(templateRepository, segmentRepository);
+                    saveTemplateTatuadorCompleta(templateRepository, segmentRepository);
 
-        // Criação do segmento
-        SegmentModel saude = new SegmentModel(null, "Saúde", "Foco em histórico médico e alergias.");
+                    break;
+                default:
+                    break;
 
-        // Criação do template
+            }
+        };
+    }
+
+    @Transactional
+    private void saveTemplateMedicaHistorico(TemplateRepository templateRepository, TermRepository termRepository, SegmentRepository segmentRepository) {
+        SegmentModel saude = new SegmentModel(null, "Saúde", "Foco em histórico médico e alergias.", "médico");
+        segmentRepository.save(saude);
+
         TemplateModel fichaMedicaCompleta = new TemplateModel(
                 null,
                 "Ficha de Anamnese Médica",
                 saude,
                 "Coleta detalhada de informações médicas para uso geral em saúde.",
-                null
+                new ArrayList<>()
         );
 
-        return args -> {
-
-            // Verifica se o segmento já existe, caso contrário, salva
-            if (termRepository.count() == 0) {
-                termRepository.save(term);
-            } else {
-                System.out.println("Termos - Dados já estão no banco. Nenhuma inserção realizada.");
-            }
-
-            // Verifica se o segmento já existe, caso contrário, salva
-            if (segmentRepository.count() == 0) {
-                segmentRepository.save(saude);
-            } else {
-                System.out.println("SegmentModel - Dados já estão no banco. Nenhuma inserção realizada.");
-            }
-
-            if (templateRepository.count() == 0) {
-                templateRepository.save(fichaMedicaCompleta);
-
-                questionRepository.saveAll(List.of(
-                        // Dados Pessoais
-                        new QuestionModel(null, "Qual é o seu nome completo?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Qual sua data de nascimento?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.DATE, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Qual seu gênero?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.SELECT, null, fichaMedicaCompleta, "Masculino;Feminino;Transgênero;Não-binário;Prefiro não informar", LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Qual seu estado civil?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.SELECT, null, fichaMedicaCompleta, "Solteiro(a);Casado(a);Divorciado(a);Viúvo(a);Separado(a);Prefiro não informar", LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Qual sua idade?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.NUMBER, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Telefone para contato?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Informe seu e-mail?", 1L, "Informações Básicas do Paciente", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Informe sua profissão?", 1L, "Informações Básicas do Paciente", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Qual seu endereço?", 1L, "Informações Básicas do Paciente", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-
-                        // Queixa Principal
-                        new QuestionModel(null, "Qual é o motivo da sua consulta?", 2L, "Queixa Principal", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Há quanto tempo os sintomas começaram?", 2L, "Queixa Principal", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Sintomas são contínuos ou intermitentes?", 2L, "Queixa Principal", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Descrição detalhada do problema?", 2L, "Queixa Principal", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-
-                        // História da doença atual
-                        new QuestionModel(null, "Há fatores que agravam ou aliviam os sintomas? Se sim detalhe.", 3L, "História da doença atual", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Já realizou algum tratamento para este problema? Se sim qual?", 3L, "História da doença atual", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-
-                        // Histórico médico
-                        new QuestionModel(null, "Tem alguma doença crônica? Se sim, detalhe.", 4L, "Histórico médico", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Você já realizou cirurgias? Se sim, quais?", 4L, "Histórico médico", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Já teve internações hospitalares? Se sim, quais?", 4L, "Histórico médico", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Você possui alguma alergia? Se sim, a quê?", 4L, "Histórico médico", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Você toma algum medicamento regularmente? Se sim, quais?", 4L, "Histórico médico", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Você está com suas vacinas em dia? Se não, quais estão pendentes?", 4L, "Histórico médico", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-
-
-                        // Histórico Familiar
-                        new QuestionModel(null, "Alguém da sua família tem doencas hereditárias ou crônicas?", 5L, "Histórico Familiar", true, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Seus familiares possuem histórico de hipertensão?", 5L, "Histórico Familiar", true, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Seus familiares possuem histórico de câncer?", 5L, "Histórico Familiar", true, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Seus familiares possuem histórico de doenças cardíacas?", 5L, "Histórico Familiar", true, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Seus familiares possuem histórico de diabetes mellitus?", 5L, "Histórico Familiar", true, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Outros problemas familiares?", 5L, "Histórico Familiar", true, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-
-
-                        // Estilo de Vida
-                        new QuestionModel(null, "Fuma?", 6L, "Estilo de Vida", false, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Consome bebidas alcoólicas?", 6L, "Estilo de Vida", false, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Você pratica atividades físicas regularmente?", 6L, "Estilo de Vida", true, QuestionModel.QuestionType.BOOLEAN, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Como descreveria sua rotina alimentar?", 6L, "Estilo de Vida", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Quantas horas você dorme por noite?", 6L, "Estilo de Vida", false, QuestionModel.QuestionType.NUMBER, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Qual é a sua ocupação? Sua rotina de trabalho impacta sua saúde?", 6L, "Estilo de Vida", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-
-
-                        // Avaliação Física
-                        new QuestionModel(null, "Qual é a sua altura em centímetros?", 7L, "Avaliação Física", false, QuestionModel.QuestionType.NUMBER, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Peso KG:", 7L, "Avaliação Física", false, QuestionModel.QuestionType.NUMBER, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Frequência cardíaca:", 7L, "Avaliação Física", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Pressão arterial - mmHg:", 7L, "Avaliação Física", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Outros achados?", 7L, "Avaliação Física", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-
-                        // Saúde Mental
-                        new QuestionModel(null, "Você apresenta sintomas de ansiedade ou depressão?", 8L, "Saúde Mental", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+        fichaMedicaCompleta.getQuestions().addAll(
+                List.of(
 
                         // Informações Complementares
                         new QuestionModel(null, "Você está com suas vacinas em dia? Se não, quais estão pendentes?", 9L, "Informações Complementares", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
-                        new QuestionModel(null, "Existe algo mais que você gostaria de informar?", 9L, "Informações Complementares", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now())));
+                        new QuestionModel(null, "Existe algo mais que você gostaria de informar?", 9L, "Informações Complementares", false, QuestionModel.QuestionType.TEXT, null, fichaMedicaCompleta, null, LocalDateTime.now(), LocalDateTime.now())
+                )
+        );
 
-
-            } else {
-                System.out.println("TemplateModel - Dados já estão no banco. Nenhuma inserção realizada.");
-            }
-        };
+        TermModel term = new TermModel(null, "Termo padrão anamnese", TERMO_DE_COMPROMISSO, null, null, null);
+        termRepository.save(term);
+        templateRepository.save(fichaMedicaCompleta);
     }
+
+    @Transactional
+    private static void saveTemplateTatuadorModel(TemplateRepository templateRepository, TermRepository termRepository, SegmentRepository segmentRepository) {
+
+        SegmentModel esteticaBeleza = new SegmentModel(null, "Estética e Beleza", "Foco em procedimentos estéticos, incluindo tatuagem.", "tatuador");
+        segmentRepository.save(esteticaBeleza);
+        TemplateModel fichaTatuagem = new TemplateModel(
+                null,
+                "Ficha de Anamnese para Tatuagem",
+                esteticaBeleza,
+                "Coleta detalhada de informações relevantes para o procedimento de tatuagem.",
+                new ArrayList<>()
+        );
+
+
+
+        fichaTatuagem.getQuestions().addAll(
+                List.of(
+                        new QuestionModel(null, "Qual é o seu nome completo?", 1L, "Dados Pessoais", true, QuestionModel.QuestionType.TEXT, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Qual sua data de nascimento?", 1L, "Dados Pessoais", true, QuestionModel.QuestionType.DATE, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Telefone para contato?", 1L, "Dados Pessoais", true, QuestionModel.QuestionType.TEXT, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Você possui alergia a tinta, látex ou outros produtos químicos?", 2L, "Histórico de Saúde", true, QuestionModel.QuestionType.BOOLEAN, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Tem alguma condição de saúde que possa interferir no procedimento? (ex: diabetes, hemofilia)", 2L, "Histórico de Saúde", true, QuestionModel.QuestionType.TEXT, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Está em uso de algum medicamento? Se sim, qual?", 2L, "Histórico de Saúde", false, QuestionModel.QuestionType.TEXT, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Já realizou tatuagem antes? Teve alguma complicação?", 3L, "Histórico de Tatuagem", false, QuestionModel.QuestionType.TEXT, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Qual a região do corpo onde deseja a tatuagem?", 3L, "Detalhes do Procedimento", true, QuestionModel.QuestionType.TEXT, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Possui alguma cicatriz, queloide ou problema de pele na área da tatuagem?", 3L, "Detalhes do Procedimento", true, QuestionModel.QuestionType.BOOLEAN, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now())
+                )
+        );
+        TermModel termTatuagem = new TermModel(null, "Termo padrão tatuagem", TERMO_DE_COMPROMISSO_TATUAGEM, null, null, null);
+        termRepository.save(termTatuagem);
+        templateRepository.save(fichaTatuagem);
+    }
+
+    @Transactional
+    private static void saveTemplateTatuadoresModel(TemplateRepository templateRepository, SegmentRepository segmentRepository) {
+
+        SegmentModel tatuador = segmentRepository.findByNameAndCategory("Estética e Beleza", "tatuador");
+
+        // Verifica se encontrou o segmento no banco
+        if (tatuador == null) {
+            tatuador = new SegmentModel(null, "Estética e Beleza", "Categoria para tatuadores", "tatuador");
+            segmentRepository.save(tatuador); // Se não existir, salva primeiro
+        } else {
+            tatuador = segmentRepository.findById(tatuador.getId()).orElseThrow(); // Garante que está gerenciado
+        }
+
+        TemplateModel fichaTatuagem = new TemplateModel(
+                null,
+                "Ficha de Anamnese para Tatuadores",
+                tatuador, // Já está gerenciado
+                "Formulário para avaliar a saúde e a preparação do cliente antes do procedimento de tatuagem.",
+                new ArrayList<>()
+        );
+
+        fichaTatuagem.getQuestions().addAll(
+                List.of(
+                        new QuestionModel(null, "Nome completo:", 1L, "Dados Pessoais", true, QuestionModel.QuestionType.TEXT, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Data de nascimento:", 1L, "Dados Pessoais", true, QuestionModel.QuestionType.DATE, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Telefone de contato:", 1L, "Dados Pessoais", true, QuestionModel.QuestionType.TEXT, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+
+                        new QuestionModel(null, "Você tem alguma alergia a pigmentos, anestésicos ou produtos químicos?", 2L, "Histórico de Saúde", true, QuestionModel.QuestionType.BOOLEAN, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Possui alguma condição de saúde que afete a cicatrização? (ex: diabetes, problemas circulatórios)", 2L, "Histórico de Saúde", true, QuestionModel.QuestionType.TEXT, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Está utilizando algum medicamento anticoagulante ou que afete a cicatrização?", 2L, "Histórico de Saúde", false, QuestionModel.QuestionType.TEXT, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+
+                        new QuestionModel(null, "Já fez tatuagem antes? Se sim, teve alguma reação adversa?", 3L, "Histórico de Tatuagem", false, QuestionModel.QuestionType.TEXT, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Qual região do corpo deseja tatuar?", 3L, "Detalhes do Procedimento", true, QuestionModel.QuestionType.TEXT, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Você se expõe frequentemente ao sol sem proteção solar?", 3L, "Cuidados com a Pele", true, QuestionModel.QuestionType.BOOLEAN, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Possui cicatrizes, queloides ou problemas dermatológicos na área da tatuagem?", 3L, "Cuidados com a Pele", true, QuestionModel.QuestionType.BOOLEAN, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+
+                        new QuestionModel(null, "Consumiu álcool ou drogas nas últimas 24 horas?", 4L, "Segurança do Procedimento", true, QuestionModel.QuestionType.BOOLEAN, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Quais são suas expectativas em relação à tatuagem? Alguma referência específica?", 5L, "Expectativas e Design", false, QuestionModel.QuestionType.TEXT, null, fichaTatuagem, null, LocalDateTime.now(), LocalDateTime.now())
+                )
+        );
+
+        templateRepository.save(fichaTatuagem);
+    }
+
+
+
+    private static void saveTemplateTatuadorCompleta(TemplateRepository templateRepository, SegmentRepository segmentRepository) {
+
+
+        SegmentModel tatuador = segmentRepository.findByNameAndCategory("Estética e Beleza","tatuador");
+        tatuador = segmentRepository.findById(tatuador.getId()).orElseThrow();
+
+        TemplateModel fichaTatuagemCompleta = new TemplateModel(
+                null,
+                "Ficha de Anamnese para Tatuagem - Completa",
+                tatuador,
+                "Coleta detalhada de informações relevantes para o procedimento de tatuagem, garantindo segurança e cuidados adequados.",
+                new ArrayList<>()
+        );
+
+        fichaTatuagemCompleta.getQuestions().addAll(
+                List.of(
+                        // **Dados Pessoais**
+                        new QuestionModel(null, "Qual é o seu nome completo?", 1L, "Dados Pessoais", true, QuestionModel.QuestionType.TEXT, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Qual sua data de nascimento?", 1L, "Dados Pessoais", true, QuestionModel.QuestionType.DATE, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Telefone para contato?", 1L, "Dados Pessoais", true, QuestionModel.QuestionType.TEXT, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Você possui plano de saúde?", 1L, "Dados Pessoais", false, QuestionModel.QuestionType.BOOLEAN, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+
+                        // **Histórico de Saúde**
+                        new QuestionModel(null, "Você possui alguma alergia? (Tintas, anestésicos, látex, medicamentos, alimentos, etc.)", 2L, "Histórico de Saúde", true, QuestionModel.QuestionType.TEXT, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Tem alguma condição de saúde que possa interferir no procedimento? (Diabetes, hipertensão, hemofilia, epilepsia, doenças autoimunes, etc.)", 2L, "Histórico de Saúde", true, QuestionModel.QuestionType.TEXT, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Está em uso de algum medicamento? Se sim, qual?", 2L, "Histórico de Saúde", false, QuestionModel.QuestionType.TEXT, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Faz uso frequente de álcool ou drogas?", 2L, "Histórico de Saúde", false, QuestionModel.QuestionType.BOOLEAN, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Está grávida ou amamentando?", 2L, "Histórico de Saúde", false, QuestionModel.QuestionType.BOOLEAN, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+
+                        // **Histórico de Tatuagem**
+                        new QuestionModel(null, "Já realizou tatuagem antes? Se sim, teve alguma complicação?", 3L, "Histórico de Tatuagem", false, QuestionModel.QuestionType.TEXT, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Já fez algum procedimento estético na área a ser tatuada? (Exemplo: peeling, laser, micropigmentação)", 3L, "Histórico de Tatuagem", false, QuestionModel.QuestionType.TEXT, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+
+                        // **Detalhes do Procedimento**
+                        new QuestionModel(null, "Qual a região do corpo onde deseja a tatuagem?", 4L, "Detalhes do Procedimento", true, QuestionModel.QuestionType.TEXT, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Qual o estilo e tamanho aproximado da tatuagem?", 4L, "Detalhes do Procedimento", true, QuestionModel.QuestionType.TEXT, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Possui alguma cicatriz, queloide ou problema de pele na área da tatuagem?", 4L, "Detalhes do Procedimento", true, QuestionModel.QuestionType.BOOLEAN, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+
+                        // **Cuidados Pré-Tatuagem**
+                        new QuestionModel(null, "Você recebeu instruções sobre os cuidados pré-tatuagem? (Exemplo: hidratar a pele, evitar exposição ao sol, evitar bebidas alcoólicas)", 5L, "Cuidados Pré-Tatuagem", true, QuestionModel.QuestionType.BOOLEAN, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+
+                        // **Cuidados Pós-Tatuagem**
+                        new QuestionModel(null, "Você compreende e concorda em seguir as orientações para o cuidado da tatuagem após o procedimento?", 6L, "Cuidados Pós-Tatuagem", true, QuestionModel.QuestionType.BOOLEAN, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+
+                        // **Consentimento Legal**
+                        new QuestionModel(null, "Você autoriza o tatuador a utilizar imagens da sua tatuagem para portfólio e redes sociais?", 7L, "Consentimento Legal", false, QuestionModel.QuestionType.BOOLEAN, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now()),
+                        new QuestionModel(null, "Você leu e concorda com os termos e condições do procedimento?", 7L, "Consentimento Legal", true, QuestionModel.QuestionType.BOOLEAN, null, fichaTatuagemCompleta, null, LocalDateTime.now(), LocalDateTime.now())
+                )
+        );
+
+        templateRepository.save(fichaTatuagemCompleta);
+    }
+
+
 }
 
 

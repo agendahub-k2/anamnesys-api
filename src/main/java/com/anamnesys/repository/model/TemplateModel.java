@@ -1,13 +1,11 @@
 package com.anamnesys.repository.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.util.List;
 
 
@@ -25,7 +23,7 @@ public class TemplateModel {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "segment_id", nullable = false)
     private SegmentModel segment;
 

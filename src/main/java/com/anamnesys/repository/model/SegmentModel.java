@@ -23,5 +23,8 @@ public class SegmentModel {
 
     @Column(length = 500)
     private String description;
+
+    @Column(length = 500, nullable = false)
+    private String category;
 }
 

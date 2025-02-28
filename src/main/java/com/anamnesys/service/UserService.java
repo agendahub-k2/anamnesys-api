@@ -20,6 +20,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +30,10 @@ import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
+import static com.anamnesys.util.Constants.EMAIL_TEMPLATE_VERIFICATION;
 import static com.anamnesys.util.Constants.USER_NOT_FOUND;
 
 @Service
@@ -46,6 +51,8 @@ public class UserService {
     private String from;
     @Value("${form.base.url}")
     String formBaseUrl;
+    @Autowired
+    VerificationCodeCacheService cacheService;
 
 
     public UserModel createUser(UserModel model) {
@@ -115,7 +122,7 @@ public class UserService {
     public void resetPasswordByToken(String newPassword, String token) {
         DecodedJWT decodedJWT = JwtUtil.verifyTokenByResetPassword(token);
         boolean tokenExpired = JwtUtil.isTokenExpired(decodedJWT);
-        if(!tokenExpired){
+        if (!tokenExpired) {
             System.out.println("TOKEN EXPIRADO");
         }
         String email = decodedJWT.getSubject();
@@ -179,6 +186,22 @@ public class UserService {
         emailService.enviarEmail(user.getEmail(), Constants.MESSAGE_RESET, emailBody);
     }
 
+    public Long sendCode(String email) {
+        Long cachedCode = cacheService.getCachedCode(email);
+
+        if (cachedCode != null) {
+            return cachedCode;
+        }
+
+        Long verificationCode = 1000L + ThreadLocalRandom.current().nextInt(9000);
+
+        String emailBody = EMAIL_TEMPLATE_VERIFICATION
+                .replace("{verificationCode}", verificationCode.toString());
+
+        emailService.enviarEmail(email, Constants.MESSAGE_VERIFICATION_SUBJECT, emailBody);
+
+        return cacheService.putCachedCode(email, verificationCode);
+    }
 
     private void setPasswordEncrypt(UserModel user) {
         user.setPassword(passwordService.hashPassword(user.getPassword()));
