@@ -40,6 +40,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-mail:3.4.1")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
 
 }
 

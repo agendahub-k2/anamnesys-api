@@ -11,6 +11,7 @@ public class Constants {
     public static final String UNAUTHORIZED = "Acesso negado: usuário não autorizado a acessar este recurso.";
     public static final String MESSAGE_RESET = "FlowForms - Redefinir Senha.";
     public static final String MESSAGE_SEND_SUBJECT= "FlowForms - Novo formulário.";
+    public static final String MESSAGE_VERIFICATION_SUBJECT = "FlowForms - Código de Verificação";
     public static final String EMAIL_TEMPLATE =
             "<!DOCTYPE html>" +
                     "<html>" +
@@ -82,6 +83,36 @@ public class Constants {
                     "            <p>Se você não solicitou a redefinição de senha, ignore este e-mail. Sua conta permanecerá segura.</p>" +
                     "        </div>" +
                     "        <div class=\"email-footer\">" +
+                    "            © 2025 FlowForms. Todos os direitos reservados." +
+                    "        </div>" +
+                    "    </div>" +
+                    "</body>" +
+                    "</html>";
+
+    public static final String EMAIL_TEMPLATE_VERIFICATION =
+            "<!DOCTYPE html>" +
+                    "<html>" +
+                    "<head>" +
+                    "    <style>" +
+                    "        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 0; }" +
+                    "        .email-container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); overflow: hidden; }" +
+                    "        .email-header { background-color: #4f46e5; color: #ffffff; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; }" +
+                    "        .email-body { padding: 20px; font-size: 16px; color: #333333; line-height: 1.5; text-align: center; }" +
+                    "        .email-body p { margin: 0 0 15px; }" +
+                    "        .verification-code { font-size: 20px; font-weight: bold; background: #4f46e5; color: #ffffff; padding: 10px; display: inline-block; border-radius: 5px; margin: 15px 0; }" +
+                    "        .email-footer { background-color: #f4f4f9; padding: 15px; text-align: center; font-size: 14px; color: #999999; }" +
+                    "    </style>" +
+                    "</head>" +
+                    "<body>" +
+                    "    <div class='email-container'>" +
+                    "        <div class='email-header'>FlowForms</div>" +
+                    "        <div class='email-body'>" +
+                    "            <p>Seu código de verificação é:</p>" +
+                    "            <div class='verification-code'>{verificationCode}</div>" +
+                    "            <p>Insira este código para concluir seu processo de verificação.</p>" +
+                    "            <p>Se você não solicitou este código, ignore este e-mail.</p>" +
+                    "        </div>" +
+                    "        <div class='email-footer'>" +
                     "            © 2025 FlowForms. Todos os direitos reservados." +
                     "        </div>" +
                     "    </div>" +

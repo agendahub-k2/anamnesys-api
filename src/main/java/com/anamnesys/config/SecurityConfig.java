@@ -31,7 +31,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Define sessão como stateless
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/user/create", "/user/login", "/user/authenticate", "/ws/**", "{userId}/record/form-data/{linkId}",
-                                "{userId}/record/submit-form/{linkId}","user/{email}/send_reset_password", "/actuator/health").permitAll()  // Permite acesso a esses endpoints sem autenticação
+                                "{userId}/record/submit-form/{linkId}","user/{email}/send_reset_password", "/actuator/health",
+                                "user/{email}/send_code").permitAll()  // Permite acesso a esses endpoints sem autenticação
                         .anyRequest().authenticated()  // Exige autenticação para os demais endpoints
                 ).cors(cors -> cors.configurationSource(corsConfigurationSource));
 

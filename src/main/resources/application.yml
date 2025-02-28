@@ -7,6 +7,8 @@ spring:
     username: k2k2
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
+    cache:
+      type: caffeine
 
   jpa:
     properties:

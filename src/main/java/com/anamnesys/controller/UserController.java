@@ -121,6 +121,18 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping("{email}/send_code")
+    public ResponseEntity<Long> sendCode(@PathVariable String email) {
+
+        logger.info("Received request to send_code user: {}", email);
+
+        Long code = userService.sendCode(email);
+
+        logger.info("successfully send_code user: {}", email);
+
+        return new ResponseEntity<>(code, HttpStatus.OK);
+    }
+
     @GetMapping("{userId}/dashboard")
     public ResponseEntity<PageDashboardResponse> getDashboard(@PathVariable Long userId, @PageableDefault Pageable pageable) {
 
