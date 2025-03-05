@@ -3,6 +3,8 @@ server:
 
 spring:
   datasource:
+    hikari:
+      maximum-pool-size: 5
     url: jdbc:mysql://flowforms.cnsyswq0g0tx.sa-east-1.rds.amazonaws.com/anamnesys
     username: flowformsadmin
     password: 741852Pca!
