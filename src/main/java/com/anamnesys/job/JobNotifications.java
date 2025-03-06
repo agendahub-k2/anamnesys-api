@@ -30,7 +30,7 @@ public class JobNotifications {
         this.webSocketService = webSocketService;
     }
 
-    @Scheduled(cron = "0 0 10,16 * * ?")
+    @Scheduled(cron = "0 */2 * * * ?")
     public void verificarAniversariantes() {
         logger.info("Initiated NotificacaoAniversarioJob");
 
@@ -70,7 +70,7 @@ public class JobNotifications {
         }
     }
 
-    @Scheduled(cron = "0 0 9,14 * * ?")
+    @Scheduled(cron = "0 */10 * * * ?")
     public void enviarNotificacaoClientesComDataRetornoHoje() {
         logger.info("Initiated enviarNotificaçãoClientesComDataRetornoHoje");
         try {

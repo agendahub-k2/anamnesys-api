@@ -11,7 +11,9 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSocket
@@ -44,6 +46,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
             @Override
             public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
                 // Pode adicionar lógica para lidar com mensagens recebidas, se necessário
+                System.out.println("Mensagem recebida: " + message.getPayload());
             }
 
             @Override
@@ -80,9 +83,10 @@ public class WebSocketConfig implements WebSocketConfigurer {
             }
 
             private Map<String, String> splitQuery(String query) {
-                return query != null
-                        ? Map.of(query.split("=")[0], query.split("=")[1]) // Simplesmente divide a string
-                        : Map.of();
+                return Arrays.stream(query.split("&"))
+                        .map(param -> param.split("="))
+                        .filter(param -> param.length == 2)
+                        .collect(Collectors.toMap(param -> param[0], param -> param[1]));
             }
 
         }, "/ws").setAllowedOrigins("*");
