@@ -30,7 +30,7 @@ public class JobNotifications {
         this.webSocketService = webSocketService;
     }
 
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 0 10,16 * * ?")
     public void verificarAniversariantes() {
         logger.info("Initiated NotificacaoAniversarioJob");
 
